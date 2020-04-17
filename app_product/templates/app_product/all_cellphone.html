@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% block content1 %}
+
+<div class="col-sm-8" style="background-color:#f5f5f5;"><br/>
+
+    {% for cellphone in cellphone_list %}
+    <div class="col-sm-4" style="background-color:white  ;border: 1px solid LightGray ;"><br/><a href="{% url 'app_product:cellphone' cellphone.pk %}" ><img src="{{ cellphone.image.url }}" width='190' height='190'><br/>{{ cellphone.name }}</a></div>{% endfor %}
+    </div>
+
+<div class="col-sm-4" style="background-color:yellow;"><p>col-sm-4</p></div>
+
+
+{% endblock %}
+</body>
+</html>

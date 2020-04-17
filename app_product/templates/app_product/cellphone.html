@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% block content1 %}
+<div class="container" >
+
+  <div class="row">
+    <div class="col-sm-8" style="background-color:white;"><h4 class="right">{{cellphone.name}}</h4></div>
+       <div class="col-sm-1" style="background-color:white;"><div style="border-left: 1px solid #f4f4f4;height: 385px;"></div></div>
+
+
+      <div class="col-sm-3" style="background-color:white;"><img src="{{cellphone.image.url}}" width="244",height="244" style=" margin:70px 1px;"></div>
+
+  </div>
+</div>
+{% endblock %}
+
+</body>
+</html>
