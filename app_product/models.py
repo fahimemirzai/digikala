@@ -1,9 +1,13 @@
 from django.db import models
+#from app_accounts.models import Basket
 
 
 class BaseProduct(models.Model):
     name = models.CharField(max_length=200)
-    #image = models.ImageField(null=True, upload_to='app_product/images')
+    #stock=models.PositiveIntegerField(default=0)
+    #basket=models.ForeignKey(Basket,on_delete=models.CASCADE,null=True)#
+
+
 
     class Meta:
         abstract = True
@@ -92,9 +96,16 @@ class Television(BaseDigitalProduct):
     pass
 
 
-class Album(models.Model):
+"""class Album(models.Model):
     cellphone = models.ForeignKey(Cellphone, on_delete=models.CASCADE)
-    image = models.ImageField(null=True,blank=True, upload_to='app_product/images')
+    image = models.ImageField(null=True,blank=True, upload_to='app_product/images')"""
+
+
+""""
+class Stock(models.Model):
+    cellphone=models.ForeignKey(Cellphone,on_delete=models.CASCADE)
+    availble=models.PositiveIntegerField(default=0)
+    CONDITION=(('a','available'),('s','soon'))"""
 
 
 

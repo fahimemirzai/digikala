@@ -24,7 +24,8 @@ class CellphoneAdmin(admin.ModelAdmin):
         ('@', {'fields': ('name', 'dimensions', 'other_description')})
     )
 
-
+"""
 @admin.register(models.Album)
 class AlbumAdmin(admin.ModelAdmin):
-    pass
+    pass"""
+
