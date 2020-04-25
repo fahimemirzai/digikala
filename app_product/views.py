@@ -36,3 +36,7 @@ class CellphoneListAPIView(generics.RetrieveAPIView):
 def BuyAPIView(request,pk):
       pass
 """
+
+
+
+
