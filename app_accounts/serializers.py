@@ -1,6 +1,11 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
+from .models import BasketItem,Basket
+
+
+
+
 class UserSerializers(serializers.ModelSerializer):
     password=serializers.CharField(write_only=True)
     #username=serializers.CharField()
@@ -23,11 +28,23 @@ class UserSerializers(serializers.ModelSerializer):
         obj.save()
         return obj """
 
-
-
+"""
 class Model_Json_Serializers(serializers.Serializer):
      id=serializers.IntegerField(required=True)
-     number=serializers.IntegerField(required=True)
+     number=serializers.IntegerField(required=True)  
+"""
+
+
+
+class BasketItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=BasketItem
+        fields=('count','content_object','basket')
+        depth=2
+
+
+
+
 
 
 

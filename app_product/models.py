@@ -1,16 +1,17 @@
 from django.db import models
-#from app_accounts.models import Basket
+from django.contrib.contenttypes.fields import GenericRelation
+from app_accounts.models import BasketItem
+
 
 
 class BaseProduct(models.Model):
     name = models.CharField(max_length=200)
-    #stock=models.PositiveIntegerField(default=0)
-    #basket=models.ForeignKey(Basket,on_delete=models.CASCADE,null=True)#
-
-
+    stock=models.PositiveIntegerField(default=1)
+    basket_items = GenericRelation(BasketItem)
 
     class Meta:
         abstract = True
+
 
 
 class BaseDigitalProduct(BaseProduct):
@@ -45,6 +46,7 @@ class BasePortableDigitalProduct(BaseDigitalProduct):
 
 
 class Cellphone(BasePortableDigitalProduct):
+
     SIM_card_description = models.CharField(max_length=200, null=True, blank=True)
     body_structure = models.TextField(max_length=4000, null=True, blank=True)
     specific_property = models.CharField(max_length=200, null=True, blank=True)
@@ -98,14 +100,7 @@ class Television(BaseDigitalProduct):
 
 """class Album(models.Model):
     cellphone = models.ForeignKey(Cellphone, on_delete=models.CASCADE)
-    image = models.ImageField(null=True,blank=True, upload_to='app_product/images')"""
-
-
-""""
-class Stock(models.Model):
-    cellphone=models.ForeignKey(Cellphone,on_delete=models.CASCADE)
-    availble=models.PositiveIntegerField(default=0)
-    CONDITION=(('a','available'),('s','soon'))"""
+    image = models.ImageField(null=True,blank=True, upload_to='app_product/images')   """
 
 
 

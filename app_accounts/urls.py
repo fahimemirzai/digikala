@@ -13,4 +13,7 @@ urlpatterns = [
     path('api-token-auth', rest_views.obtain_auth_token),
     path('api-auth', include('rest_framework.urls')),
 
+    path('show-basket',views.show_basket_item_view),
+    path('add-basket',views.add_basket_view),
+
 ]
