@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '4@fjk#1z3$b(naz4y-n9)bqq7d+!gd_ac)m!51zhqdk_nk2u&7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG =True
 
 ALLOWED_HOSTS = []
 
@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'app_accounts',
     'rest_framework',
+    'rest_framework_swagger',
     'app_product.apps.AppProductConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
 ]
 
 MIDDLEWARE = [
@@ -72,7 +74,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'digikala.wsgi.application'
-
 
 
 REST_FRAMEWORK = {

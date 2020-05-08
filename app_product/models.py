@@ -7,6 +7,7 @@ from app_accounts.models import BasketItem
 class BaseProduct(models.Model):
     name = models.CharField(max_length=200)
     stock=models.PositiveIntegerField(default=1)
+    price=models.PositiveIntegerField(default=0,null=True,blank=True)#
     basket_items = GenericRelation(BasketItem)
 
     class Meta:
@@ -46,7 +47,6 @@ class BasePortableDigitalProduct(BaseDigitalProduct):
 
 
 class Cellphone(BasePortableDigitalProduct):
-
     SIM_card_description = models.CharField(max_length=200, null=True, blank=True)
     body_structure = models.TextField(max_length=4000, null=True, blank=True)
     specific_property = models.CharField(max_length=200, null=True, blank=True)
@@ -97,10 +97,10 @@ class Television(BaseDigitalProduct):
 
     pass
 
-
-"""class Album(models.Model):
+"""
+class Album(models.Model):
     cellphone = models.ForeignKey(Cellphone, on_delete=models.CASCADE)
-    image = models.ImageField(null=True,blank=True, upload_to='app_product/images')   """
+    image = models.ImageField(null=True,blank=True, upload_to='app_product/images')"""
 
 
 

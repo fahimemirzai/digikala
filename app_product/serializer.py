@@ -4,14 +4,9 @@ from .models import Cellphone
 
 
 class CellphoneSerializer(ModelSerializer):
-
     class Meta:
         model = Cellphone
         fields = '__all__'
-
-
-
-
 
 
 
