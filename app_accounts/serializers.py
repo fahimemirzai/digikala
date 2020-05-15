@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import BasketItem, Basket
+from .models import BasketItem, Basket, Profile
 
 
 class UserSerializers(serializers.ModelSerializer):
@@ -39,21 +39,48 @@ class Model_Json_Serializers(serializers.Serializer):
      id=serializers.IntegerField(required=True)
      number=serializers.IntegerField(required=True)  
 """
+class UserSerializer2(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email')
+class ProfileSerializer(serializers.ModelSerializer):
+    first_name = serializers.SerializerMethodField()
+    last_name = serializers.SerializerMethodField()
+    email = serializers.SerializerMethodField()
+
+    def get_first_name(self, obj):
+        return obj.user.first_name
+
+    def get_last_name(self, obj):
+        return obj.user.last_name
+
+    def get_email(self, obj):
+        #import ipdb ; ipdb.set_trace()
+        return obj.user.email
+    class Meta:
+        model = Profile
+        fields='__all__'
+
+
+class EditProfileSerializer(serializers.ModelSerializer):
+    """first_name = serializers.SerializerMethodField()
+    def get_first_name(self,obj):
+        user=Profile.objects.get(user=obj.user)"""
+    class Meta:
+        model = Profile
+        fields = ('birth_date','national_code','phone_number')
+        #fields='__all__'
 
 
 class BasketItemSerializer(serializers.ModelSerializer):
     item = serializers.SerializerMethodField() #فقط خواندنی است
     price = serializers.SerializerMethodField()
-    #total_price=
 
     def get_item(self, obj, *args, **kwargs):
         return obj.content_object.name
 
     def get_price(self, obj, *args, **kwargs):
-        return obj.content_object.price
-        # (obj.content_object.price)*count/
-        # obj.content_object.price)*self.count/
-        # obj.content_object.price)*obj.count
+        return obj.content_object.price * obj.count
 
     class Meta:
         model = BasketItem
@@ -61,6 +88,22 @@ class BasketItemSerializer(serializers.ModelSerializer):
         #depth = 1
 
 
+class BasketSerializer(serializers.ModelSerializer):
+    item_list = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
 
+    def get_item_list(self,obj): #جدید
+        item = obj.basketitem_set.all()
+        ser = BasketItemSerializer(item, many=True)
+        return ser.data
 
+    def get_total_price(self,obj, *args, **kwargs):
+        items = obj.basketitem_set.all()
+        result = 0
+        for item in items:
+            result += item.content_object.price * item.count#جدید
+        return result
 
+    class Meta:
+        model = Basket
+        fields = '__all__'

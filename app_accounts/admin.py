@@ -12,6 +12,10 @@ class BasketAdmin(admin.ModelAdmin):
     inlines=[BaskeItemInline]
 
 
+@admin.register(models.Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    pass
+
 
 """
 @admin.register(models.BasketItem)

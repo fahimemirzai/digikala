@@ -16,3 +16,14 @@ class IsOwner(permissions.BasePermission):
 
         else:
             return False
+
+
+
+
+class MustAnonymouse(permissions.BasePermission):
+    def has_permission(self,request,view):
+        #import ipdb ; ipdb.set_trace()
+        if request.user.is_anonymous:
+            return True
+        else:
+            return False

@@ -97,10 +97,10 @@ class Television(BaseDigitalProduct):
 
     pass
 
-"""
+'''
 class Album(models.Model):
     cellphone = models.ForeignKey(Cellphone, on_delete=models.CASCADE)
-    image = models.ImageField(null=True,blank=True, upload_to='app_product/images')"""
+    image = models.ImageField(null=True,blank=True, upload_to='app_product/images')'''
 
 
 

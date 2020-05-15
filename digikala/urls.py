@@ -27,7 +27,7 @@ schema_view = get_swagger_view(title='digikala_api')
 
 urlpatterns = [
 
-
+    path('zarinpal/', include('app_zarinpal.urls')),
     path('admin/', admin.site.urls),
     path('api/product/', include('app_product.urls', namespace='product')),
     path('api/accounts/',include('app_accounts.urls')),
