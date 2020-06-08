@@ -25,3 +25,19 @@ class BasketItemAdmin(admin.ModelAdmin):
 
 
 
+@admin.register(models.Address)
+class AdressAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.Comment)
+class CommentAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(models.Like)
+class LikeAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(models.GoodBadPoint)
+class GoodBadPointAdmin(admin.ModelAdmin):
+    pass

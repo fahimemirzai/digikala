@@ -1,7 +1,23 @@
 from django.db import models
+from django.db.models import Q
 from django.contrib.contenttypes.fields import GenericRelation
-from app_accounts.models import BasketItem
+from app_accounts.models import BasketItem,Comment
 
+
+
+class SearchManager(models.Manager):#همش@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    # def get_queryset(self):
+    #     return super().get_queryset().filter(.....)
+
+    def search(self, query=None):
+        qs = self.get_queryset() #@@@@@@@@@@@@@@@@@@@@@@@@@@==Cellphone.sm.all()
+        # import ipdb; ipdb.set_trace()
+        if query is not None:
+            or_lookup = (Q(name__icontains=query) #|
+                         # Q(description__icontains=query)
+                         )
+            qs = qs.filter(or_lookup).distinct()
+        return qs
 
 
 class BaseProduct(models.Model):
@@ -9,10 +25,10 @@ class BaseProduct(models.Model):
     stock=models.PositiveIntegerField(default=1)
     price=models.PositiveIntegerField(default=0,null=True,blank=True)#
     basket_items = GenericRelation(BasketItem)
+    coments = GenericRelation(Comment)
 
     class Meta:
         abstract = True
-
 
 
 class BaseDigitalProduct(BaseProduct):
@@ -81,6 +97,10 @@ class Cellphone(BasePortableDigitalProduct):
     conversation_charging_rate = models.CharField(max_length=200, null=True, blank=True, help_text='میزان شارژ مکالمه')
     cell_phone_items = models.CharField(max_length=200, null=True, blank=True)
 
+    sm=SearchManager()
+    objects = models.Manager()
+
+
 
 
 
@@ -94,8 +114,11 @@ class Tablet(BasePortableDigitalProduct):
 
 
 class Television(BaseDigitalProduct):
+    brand=models.CharField(max_length=1000,null=True)
+    sm = SearchManager()
+    objects = models.Manager()
 
-    pass
+    
 
 '''
 class Album(models.Model):

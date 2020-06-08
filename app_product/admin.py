@@ -31,3 +31,6 @@ class CellphoneAdmin(admin.ModelAdmin):
 class AlbumAdmin(admin.ModelAdmin):
     pass"""
 
+@admin.register(models.Television)
+class TelevisionAdmin(admin.ModelAdmin):
+    pass
