@@ -16,8 +16,8 @@ urlpatterns = [
     path('profile', views.profile,name='profile'),
     path('profile/edit',views.edit_profile),
 
-    path('show-addresses', views.address),
-    path('address/<int:pk>', views.edit_address),
+    path('show-addresses', views.show_address),
+    path('edite-address/<int:pk>', views.edit_address),
     path('add-address', views.add_address),
 
 
@@ -25,18 +25,36 @@ urlpatterns = [
     path('show-basket',views.show_basket),
     path('add-basket',views.add_basket_item),
     path('reduce-basket',views.reduce_basket_item),
+    path('add-to-favorites', views.add_to_favorites),
+    path('show-favorites',views.show_favorites),
 
-    path('favorites', views.favorite_basket),
 
-    path('show-comment', views.show_comment),
-    path('comment/delete/', views.delete_comment),
-    # path('comment/update/', views.update_comment),
-
+    path('show-comment/', views.show_comment),
+    path('comment/delete/<int:pk>', views.delete_comment),
+    # path('comment/update/<int:pk>/', views.update_comment),
     path('comment/add/', views.add_comment),
-    path('comment/like/', views.like_comment),
+    path('comment/like/<int:pk>', views.like_comment),
 
     path('my-orders/',views.show_orders),
     path('my-orders/<int:pk>', views.order_item),
+    path('show-returning-basket/<int:pk>/', views.show_returning_basket),
+
+    path('add-delivery-address/<int:pk>',views.add_delivery_address),
+    path('add-delivery-date/<int:pk>', views.add_delivery_date),
+
+    path('add-question/',views.add_question),
+    path('add-reply/',views.add_reply),
+    path('like-dislike-reply/',views.like_dislike_reply),
+    path('show-question_reply/', views.show_quesstion_reply),
+
+
+    path('cancel-item-or-basket/<int:pk>',views.cancel_item_or_basket),
+
+
+    path('returning-basket-canceled/<int:pk>',views.canceled_returning_basket),
+    path('add-returning-date/<int:pk>',views.add_returning_date),
+    path('add-returning-items/<int:pk>',views.add_returning_items),
+    path('edite-returning-items/<int:pk>', views.edite_returning_items),
 
 
 ]

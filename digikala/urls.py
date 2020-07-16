@@ -22,11 +22,7 @@ from rest_framework_swagger.views import get_swagger_view
 
 schema_view = get_swagger_view(title='digikala_api')
 
-
-
-
 urlpatterns = [
-
     # path('zarinpal/', include('app_zarinpal.urls')),
     path('admin/', admin.site.urls),
     path('api/product/', include('app_product.urls', namespace='product')),
@@ -34,6 +30,5 @@ urlpatterns = [
     path('', schema_view),
 
 
-
-
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# urlpatterns += staticfiles_urlpatterns()

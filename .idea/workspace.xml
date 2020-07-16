@@ -20,6 +20,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d7d50b25-d41b-4801-afe6-a26777cce6e8" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/digikala.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/digikala.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app_accounts/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_accounts/admin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app_accounts/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_accounts/models.py" afterDir="false" />
@@ -112,5 +113,16 @@
       <screen x="0" y="0" width="1280" height="800" />
     </state>
     <state x="29" y="35" width="1207" height="729" key="find.popup/0.0.1280.800@0.0.1280.800" timestamp="1590384896395" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/app_accounts/views.py</url>
+          <line>363</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

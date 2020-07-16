@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from django.views import generic
+# from django.views import generic
 from .models import Cellphone,Television
-from .serializer import CellphoneSerializer,SearchSerializer
+from .serializer import CellphoneSerializer,SearchSerializer,AllCellphoneSerializer
 from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -9,34 +9,40 @@ from itertools import chain
 from django_filters.rest_framework import DjangoFilterBackend
 
 
-class ProductList(generics.ListAPIView):
-    #queryset = Cellphone.objects.all()
-    #serializer_class = CellphoneSerializer
+
+class ProductList(generics.ListAPIView):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    ##queryset = Cellphone.objects.all()
+    ##serializer_class = CellphoneSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['name','stock','price']
 
-    def get_queryset(self):
+    def get_queryset(self):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         MODELS = ['Cellphone', 'Tablet', 'Laptop', 'Television']
-        product_type = self.request.GET.get('type')
+        product_type = self.request.GET.get('type')#@@@@@@@@@@@@@@@@@@@@@@@@@ self=یادته هر وقت یک تابع داخل یک کلاس بود
 
         if product_type in MODELS:
             product_model = eval(product_type)
             return product_model.objects.all()
         else:
+            # import ipdb;
+            # ipdb.set_trace()
+            print('*'*100)
             return None
+            # return Response({'error':'type mahsoul ra dorost  vered konid'})
 
-    def get_serializer_class(self):
+    def get_serializer_class(self):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         product_type = self.request.GET.get('type')
         if product_type == 'Cellphone':
-            return CellphoneSerializer
+            return AllCellphoneSerializer
         elif product_type == 'Tablet':
             pass #سریالایزر مربوط بهش که الان ندارم
         elif product_type == 'Laptop':
             pass
         elif product_type == 'Television':
             pass
-        # else:
-        #     return None
+        else:
+            # return Response({'error': 'type mahsoul ra vered konid'})
+            return Response({"ERROR":"ERROR"})
 
 
 class ProductDetail(generics.RetrieveAPIView):
@@ -93,3 +99,9 @@ class Search(generics.ListAPIView):# همش @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         return Cellphone.sm.none()#یک کویری ست خالی برمی گردونه
 
 
+#
+# @api_view(['GET'])
+# def image(request):
+#     album=Album.objects.all()
+#     ser=AlbumSerializer(album,many=True)
+#     return Response(ser.data)

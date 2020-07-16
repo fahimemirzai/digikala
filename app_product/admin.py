@@ -34,3 +34,17 @@ class AlbumAdmin(admin.ModelAdmin):
 @admin.register(models.Television)
 class TelevisionAdmin(admin.ModelAdmin):
     pass
+
+@admin.register(models.CauseOfCancalation)
+class CauseOfCancalationAdmin(admin.ModelAdmin):
+    pass
+
+
+
+@admin.register(models.Photo)
+class PhotoAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(models.Video)
+class VideoAdmin(admin.ModelAdmin):
+    pass

@@ -1,7 +1,10 @@
 from django.db import models
 from django.db.models import Q
 from django.contrib.contenttypes.fields import GenericRelation
-from app_accounts.models import BasketItem,Comment
+from app_accounts.models import BasketItem,Comment,Question
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.conf import settings
 
 
 
@@ -24,8 +27,13 @@ class BaseProduct(models.Model):
     name = models.CharField(max_length=200)
     stock=models.PositiveIntegerField(default=1)
     price=models.PositiveIntegerField(default=0,null=True,blank=True)#
-    basket_items = GenericRelation(BasketItem)
-    coments = GenericRelation(Comment)
+
+    basket_items = GenericRelation(BasketItem,related_query_name='basket_items')
+    comments = GenericRelation(Comment)
+    question=GenericRelation(Question,related_query_name='question')
+    cause_cancalation=GenericRelation('CauseOfCancalation')
+    video=GenericRelation('Video')
+    photo=GenericRelation('Photo')
 
     class Meta:
         abstract = True
@@ -120,12 +128,44 @@ class Television(BaseDigitalProduct):
 
     
 
-'''
-class Album(models.Model):
-    cellphone = models.ForeignKey(Cellphone, on_delete=models.CASCADE)
-    image = models.ImageField(null=True,blank=True, upload_to='app_product/images')'''
+
+class Photo(models.Model):
+    image = models.ImageField(null=True,blank=True, upload_to='app_product/images',
+                                          default='Images/None/No-img.jpg')#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    @property
+    def image_url(self):
+        return settings.DOMAIN+ settings.MEDIA_URL+str(self.image)#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    content_type=models.ForeignKey(ContentType,on_delete=models.CASCADE,null=True)
+    object_id=models.PositiveIntegerField(null=True)
+    content_object=GenericForeignKey('content_type','object_id')
 
 
+class Video(models.Model):
+
+    video = models.FileField(null=True, blank=True, upload_to='app_product/videos', default='videos/None/No-img.pdf') #@@@@@@@@@@@@@@@@@@@@@@@@@@
+    @property
+    def video_url(self):
+        return settings.DOMAIN+ settings.MEDIA_URL+str(self.image)#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    content_type=models.ForeignKey(ContentType,on_delete=models.CASCADE,null=True)
+    object_id=models.PositiveIntegerField(null=True)
+    content_object=GenericForeignKey('content_type','object_id')
+
+
+
+
+class CauseOfCancalation(models.Model):
+    REASON=(("A","از خرید منصرف شده ام"),("B","میخواهم کالای خود را ویرایش کنم"),
+            ("C","کد تخفیف اعمال نشده"),("D","سفارش تکراری ثبت کرده ام"),("E","قیمت کالا زیاد است"),
+            ("F","هزینه ارسال زیاد است"),("G","میخواهم شیوه پرداخت را تغییر بدهم"))
+    reason=models.CharField(max_length=1,null=True,blank=True)
+    count=models.PositiveIntegerField(default=0,null=True,)
+
+    content_type=models.ForeignKey(ContentType,on_delete=models.CASCADE,null=True)
+    object_id=models.PositiveIntegerField(null=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
 
 
 

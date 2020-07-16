@@ -41,3 +41,34 @@ class LikeAdmin(admin.ModelAdmin):
 @admin.register(models.GoodBadPoint)
 class GoodBadPointAdmin(admin.ModelAdmin):
     pass
+
+@admin.register(models.Question)
+class QuestionAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(models.Reply)
+class ReplyAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(models.DeliveryDate)
+class DeliveryDateAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.ReturningItem)
+class ReturningItemAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.ReturningBasket)
+class ReturningBasketAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.ReturningDate)
+class ReturningDateAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(models.RefundAmount)
+class RefundAmountAdmin(admin.ModelAdmin):
+    pass

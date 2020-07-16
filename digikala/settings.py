@@ -140,3 +140,8 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'digikala/media')
 
+
+if DEBUG==True: #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    DOMAIN='127.0.0.1:8000'
+else:
+    DOMAIN = 'http://fahimemirzai.pythonanywhere.com'
