@@ -1,7 +1,7 @@
 from django.shortcuts import render
 # from django.views import generic
 from .models import Cellphone,Television
-from .serializer import CellphoneSerializer,SearchSerializer,AllCellphoneSerializer
+from .serializer import CellphoneSerializer,SearchSerializer,AllCellphoneSerializer,ErrorSerializer
 from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -19,16 +19,12 @@ class ProductList(generics.ListAPIView):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     def get_queryset(self):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         MODELS = ['Cellphone', 'Tablet', 'Laptop', 'Television']
         product_type = self.request.GET.get('type')#@@@@@@@@@@@@@@@@@@@@@@@@@ self=یادته هر وقت یک تابع داخل یک کلاس بود
-
         if product_type in MODELS:
             product_model = eval(product_type)
             return product_model.objects.all()
         else:
-            # import ipdb;
-            # ipdb.set_trace()
-            print('*'*100)
-            return None
-            # return Response({'error':'type mahsoul ra dorost  vered konid'})
+            return Cellphone.objects.none()
+
 
     def get_serializer_class(self):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         product_type = self.request.GET.get('type')
@@ -41,8 +37,7 @@ class ProductList(generics.ListAPIView):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         elif product_type == 'Television':
             pass
         else:
-            # return Response({'error': 'type mahsoul ra vered konid'})
-            return Response({"ERROR":"ERROR"})
+            return ErrorSerializer
 
 
 class ProductDetail(generics.RetrieveAPIView):
@@ -56,7 +51,7 @@ class ProductDetail(generics.RetrieveAPIView):
             product_model = eval(product_type)
             return product_model.objects.all()
         else:
-            return None
+            return Cellphone.objects.none()
 
     def get_serializer_class(self):
         product_type = self.request.GET.get('type')
@@ -69,7 +64,10 @@ class ProductDetail(generics.RetrieveAPIView):
         elif product_type == 'Television':
             pass
         else:
-            return None
+            return ErrorSerializer
+
+
+
 
 
 

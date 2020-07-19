@@ -25,6 +25,7 @@ urlpatterns = [
     path('show-basket',views.show_basket),
     path('add-basket',views.add_basket_item),
     path('reduce-basket',views.reduce_basket_item),
+
     path('add-to-favorites', views.add_to_favorites),
     path('show-favorites',views.show_favorites),
 

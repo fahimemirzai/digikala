@@ -25,6 +25,11 @@ class BasketItem(models.Model):
      basket=models.ForeignKey('Basket',on_delete=models.CASCADE,null=True)
      count = models.PositiveSmallIntegerField(default=0)
      price=models.PositiveIntegerField(null=True,blank=True,default=0) # (تعداد*هزینه هرکدوم)==
+     discount=models.PositiveIntegerField(default=0,null=True)
+     @property
+     def discount_price(self):
+         return self.price - self.discount
+
 
      content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True) #app_label-->model-->id(id mahsole)
      object_id = models.PositiveIntegerField(null=True)
@@ -48,23 +53,26 @@ class Basket(models.Model):
     status=models.CharField(max_length=30, choices=STATUS, null=True,)
     order_number=models.CharField(max_length=13,validators=[MinLengthValidator(13),
                                                             validate_order_number],null=True,blank=True)#@@@@@@@@@@@@@@@@@@@@@@@@@
-    total_price = models.PositiveIntegerField(null=True, blank=True,default=0)
+    total_price = models.PositiveIntegerField(default=0,null=True)
+    total_discount = models.PositiveIntegerField(default=0,null=True)
+    total_discount_price = models.PositiveIntegerField(default=0,null=True)
 
     @property #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     def payable_amount(self):
-        if self.total_price ==None:
+        if self.total_price==0 :
             return None
 
-        if self.total_price >= 200:
-            return self.total_price
+        elif self.total_discount_price >= 200:
+            return self.total_discount_price
         else:
-            return self.total_price+9.5
+            return self.total_discount_price+9.5
 
     @property
     def shipping_cost(self):
         # if self.total_price==None:
         #     return None
-        if self.total_price>=200:
+        # import ipdb; ipdb.set_trace()
+        if self.total_discount_price >= 200:
             return 0
         else:
             return 9.5

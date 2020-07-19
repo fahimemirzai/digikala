@@ -278,9 +278,12 @@ def add_basket_item(request):
 
     basket_item.count += 1
     basket_item.price += obj.price
+    basket_item.discount+=obj.discount
     basket_item.save()
 
     basket.total_price +=obj.price
+    basket.total_discount+=obj.discount
+    basket.total_discount_price +=(obj.price - obj.discount)
     basket.save()
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # obj.stock -= 1
@@ -330,9 +333,13 @@ def reduce_basket_item(request):
         # obj.save()
 
         per_price=item.price / item.count
+        discount=item.discount/item.count
         item.count -= 1
         item.price -=per_price
+        item.discount -= discount
         basket.total_price -=per_price
+        basket.total_discount -=discount
+        basket.total_discount_price =basket.total_price - basket.total_discount
         basket.save()
         item.save()
 

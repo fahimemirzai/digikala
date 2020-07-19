@@ -26,7 +26,14 @@ class SearchManager(models.Manager):#همش@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 class BaseProduct(models.Model):
     name = models.CharField(max_length=200)
     stock=models.PositiveIntegerField(default=1)
-    price=models.PositiveIntegerField(default=0,null=True,blank=True)#
+    price=models.PositiveIntegerField(default=0,null=True,blank=True)
+    discount=models.PositiveIntegerField(default=0,null=True) #jadid
+    @property
+    def discounted_price(self): #jadid
+        return self.price - self.discount
+
+    STATUS=(('A','available'),('S','soon'),('O','out of stock'))
+    status=models.CharField(max_length=1,choices=STATUS,null=True)
 
     basket_items = GenericRelation(BasketItem,related_query_name='basket_items')
     comments = GenericRelation(Comment)
@@ -34,6 +41,7 @@ class BaseProduct(models.Model):
     cause_cancalation=GenericRelation('CauseOfCancalation')
     video=GenericRelation('Video')
     photo=GenericRelation('Photo')
+    color=GenericRelation('Color')
 
     class Meta:
         abstract = True
@@ -127,6 +135,22 @@ class Television(BaseDigitalProduct):
     objects = models.Manager()
 
     
+class Color(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    object_id = models.PositiveIntegerField(null=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    COLORS=(('1','red'),('2','blue'),('3','yellow'),('4','pink'),('5','black'))
+    colors=models.CharField(max_length=1,choices=COLORS,null=True)
+    capacity=models.PositiveIntegerField(default=0,null=True)
+
+    @property
+    def available(self):
+        if self.capacity>=0:
+            return True
+        else:
+            return False
+
 
 
 class Photo(models.Model):

@@ -63,6 +63,7 @@ class UserSerializer2(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'email')
+        extra_kwargs={'first_name':{'required':True},'last_name':{'required':True}}
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -88,14 +89,18 @@ class ProfileSerializer(serializers.ModelSerializer):
 class EditProfileSerializer(serializers.ModelSerializer):
     first_name=serializers.CharField(max_length=30)
     last_name=serializers.CharField(max_length=30)
-    email=serializers.EmailField()
+    email=serializers.EmailField(required=False)
 
     class Meta:
         model = Profile
         fields = ('birth_date','national_code','bank_kard','newsletter_receive',
-                  'foreign_national','first_name','last_name','email')
+                  'foreign_national','email','first_name','last_name')
         #fields='__all__' # روی این کار نمیکنه
         # exclude=['user']
+        extra_kwargs={'birth_date':{'required':True},'foreign_national':{'required':True},
+                      'newsletter_receive':{'required':True}}
+
+
 
 class FavoritesItemSerializer(serializers.ModelSerializer):
     price=serializers.SerializerMethodField()
@@ -142,13 +147,14 @@ class BasketItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BasketItem
-        fields = ('item','count','content_type', 'price_one_item','price','image')
+        fields = ('item','image','count','content_type', 'price_one_item','price','discount','discount_price')
         #depth = 1
 
 
 class BasketSerializer(serializers.ModelSerializer):
     commodity_count=serializers.SerializerMethodField()#فقط خواندنی است
     item_list = serializers.SerializerMethodField()
+    total_discount_persent=serializers.SerializerMethodField()
 
     def get_commodity_count(self,obj):
         basket_items=obj.basketitem_set.all()
@@ -162,11 +168,15 @@ class BasketSerializer(serializers.ModelSerializer):
         ser = BasketItemSerializer(items, many=True)
         return ser.data #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+    def get_total_discount_persent(self,obj):
+        return obj.total_discount/obj.total_price
+
 
     class Meta:
         model = Basket
         # fields = '__all__'
-        fields = ('commodity_count','total_price','shipping_cost','payable_amount','item_list')
+        fields = ('commodity_count','total_price','total_discount','total_discount_persent',
+                  'total_discount_price','shipping_cost','payable_amount','item_list')
 
 #
 # class BasketFavoriteSerializer(serializers.ModelSerializer):
