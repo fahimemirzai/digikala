@@ -21,118 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="d7d50b25-d41b-4801-afe6-a26777cce6e8" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0002_auto_20200427_0426.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0003_basketitem_basket.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0004_basketitem_count.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0005_auto_20200427_0742.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0006_remove_basketitem_price.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0007_auto_20200429_1657.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0008_auto_20200501_0928.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0009_auto_20200501_0958.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0010_auto_20200502_1150.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0011_address_profile.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0012_profile_national_code.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0013_auto_20200512_0753.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0014_auto_20200515_0804.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0015_remove_profile_phone_number.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0016_auto_20200516_2012.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0017_auto_20200516_2026.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0018_comment.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0019_profile_bank_kard.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0020_auto_20200522_1901.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0021_auto_20200522_1920.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0022_profile_foreign_national.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0023_auto_20200522_1930.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0024_auto_20200522_1931.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0025_auto_20200523_0705.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0026_auto_20200523_1019.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0027_auto_20200525_1136.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0028_comment_pubish.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0029_auto_20200528_0907.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0030_auto_20200529_1819.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0031_auto_20200530_0830.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0032_auto_20200530_1701.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0033_auto_20200531_0759.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0034_auto_20200531_0807.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0035_comment_star.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0036_auto_20200531_0951.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0037_auto_20200601_1114.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0038_auto_20200602_0724.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0039_auto_20200603_0728.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0040_auto_20200604_0638.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0041_address_reciver_cellphone.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0042_auto_20200606_0730.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0043_auto_20200606_1025.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0044_basket_delivered_date.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0045_auto_20200606_1239.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0046_auto_20200606_1240.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0047_basket_address.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0048_auto_20200608_0738.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0049_basket_shipping_cost.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0050_auto_20200612_0745.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0051_auto_20200612_0746.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0052_auto_20200612_0928.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0053_question_response.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0054_auto_20200613_0816.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0055_auto_20200613_1104.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0056_auto_20200614_0713.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0057_auto_20200614_0844.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0058_auto_20200614_1008.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0059_auto_20200614_1054.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0060_reply_posted_date.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0061_auto_20200615_1126.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0062_auto_20200615_1232.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0063_basket_active.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0064_basket_position.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0065_remove_basket_delivery_date.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0066_auto_20200624_1543.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0067_auto_20200624_1710.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0068_returningdate_returning_date.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0069_returningbasket_status.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0070_returningbasket_user.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0071_auto_20200625_1156.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0072_auto_20200627_1523.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0073_returningbasket_basket.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0074_remove_basket_shipping_cost.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0075_auto_20200703_0735.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0076_auto_20200703_0846.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0077_auto_20200703_1139.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0078_auto_20200710_0811.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0079_auto_20200710_1726.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0080_comment_offer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0081_auto_20200711_0902.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0082_refundamount.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0083_auto_20200712_0839.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/migrations/0084_auto_20200713_0901.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_accounts/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_accounts/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_accounts/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_accounts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_accounts/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_product/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0002_auto_20200417_1141.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0003_auto_20200417_1200.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0004_auto_20200417_1239.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0005_auto_20200417_1358.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0006_delete_album.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0007_auto_20200422_1554.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0008_auto_20200427_0426.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0009_auto_20200429_1618.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0010_auto_20200502_1150.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0011_album.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0012_delete_album.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0013_auto_20200526_1249.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0014_auto_20200526_1810.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0015_causeofcancalation.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0016_album.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0017_auto_20200708_0703.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0018_auto_20200708_0704.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0019_album_video.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/migrations/0020_auto_20200709_1518.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_product/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/serializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_product/serializer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_product/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_product/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -145,6 +33,7 @@
       <list>
         <option value="HTML File" />
         <option value="Python Script" />
+        <option value="Setup Script" />
       </list>
     </option>
   </component>
