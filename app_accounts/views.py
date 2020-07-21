@@ -108,7 +108,7 @@ def change_password(request):
         return Response({"ERROR":"OLD PASSWORD RA DOROST VARED KONID"})"""
 
 
-@api_view(['POST'])
+@api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
 def change_password(request):
     try:
@@ -291,7 +291,11 @@ def add_basket_item(request):
 
     # ser = BasketItemSerializer(basket_item)
     # return Response(ser.data)
-    return Response({'message':'sabt shod'})
+    basket = Basket.objects.filter(status='active', user=request.user)
+    ser = BasketSerializer(basket, many=True)
+    return Response(ser.data)
+
+
 
 
 @api_view(['PUT'])#فکر کنم باید این رو بزارم put ؟؟
