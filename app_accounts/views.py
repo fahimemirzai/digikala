@@ -353,8 +353,9 @@ def reduce_basket_item(request):
                 basket.delete()
             #ser=BasketItemSerializer(data=basket.basketitem_set.all(),many=True)
             #return Response(ser.data)
-
-        return Response({"MESSAGE":"REDUCE ITEM FROM YOUR BASKET"})
+        basket = Basket.objects.filter(status='active', user=request.user)
+        ser = BasketSerializer(basket, many=True)
+        return Response(ser.data)
     except:
         return Response({"ERROR:": "YOU DONT HAVE THIS ITEM IN YOUR BASKET"})
 
