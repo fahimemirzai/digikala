@@ -380,7 +380,7 @@ def show_favorites(request):
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def add_to_favorites(request):
+def add_reduce_favorites(request):
     if request.method=='POST':
         try:
             obj_id=request.data['obj_id']
@@ -418,9 +418,16 @@ def add_to_favorites(request):
 
         item.count=0
         item.delete()
-        return Response({"MESSAGE","ITEM HAZF SHOD"})
+        return Response({"MESSAGE":"ITEM HAZF SHOD"})
 
 
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def my_comments(request):
+    comment=Comment.objects.filter(user=request.user)
+    ser = CommentSerializer(comment,many=True)
+    return Response(ser.data)
 
 
 @api_view(['DELETE','GET'])

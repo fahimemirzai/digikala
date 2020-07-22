@@ -26,7 +26,7 @@ urlpatterns = [
     path('add-basket',views.add_basket_item),
     path('reduce-basket',views.reduce_basket_item),
 
-    path('add-to-favorites', views.add_to_favorites),
+    path('add-reduce-favorites', views.add_reduce_favorites),
     path('show-favorites',views.show_favorites),
 
 
@@ -35,6 +35,7 @@ urlpatterns = [
     # path('comment/update/<int:pk>/', views.update_comment),
     path('comment/add/', views.add_comment),
     path('comment/like/<int:pk>', views.like_comment),
+    path('my-comments',views.my_comments),
 
     path('my-orders/',views.show_orders),
     path('my-orders/<int:pk>', views.order_item),
@@ -59,3 +60,6 @@ urlpatterns = [
 
 
 ]
+
+
+#***************************************$$$$$$$$$$$$$$$$$$$$$
