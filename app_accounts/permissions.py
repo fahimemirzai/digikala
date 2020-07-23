@@ -147,7 +147,6 @@ class AdressRegisterAbility(permissions.BasePermission):
         except:
             return False
 
-
         if  order=='buy':
             try:
               pk=view.kwargs.get('pk')
@@ -164,7 +163,6 @@ class AdressRegisterAbility(permissions.BasePermission):
                   return False
 
             except:
-
                 return False
 
         elif order=='returned':
@@ -292,11 +290,16 @@ class AllowCancelledReturnBasket(permissions.BasePermission):
 class CancelledTimeLimit(permissions.BasePermission):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     def has_permission(self,request,view):
         try:
+            # import ipdb;
+            # ipdb.set_trace()
             basket=Basket.objects.get(pk=view.kwargs['pk'],user=request.user,status='pardakht-shod')
         except:
             return False
 
         try:
+
+            if bool(basket.deliverydate)==False:
+                return True
             ln=( basket.deliverydate.date - basket.order_registration_date ).days
             date_range=[basket.order_registration_date + datetime.timedelta(i) for i in range(0,ln)]
             now=datetime.date.today()

@@ -227,6 +227,18 @@ def edit_address(request,pk):
             return Response(ser.errors)
 
 
+@api_view(['DELETE'])
+@permission_classes((IsAuthenticated,IsOwner))
+def delete_address(request,pk):
+    address=Address.objects.get(pk=pk)
+    address.delete()
+
+    addresses=Address.objects.filter(profile__user=request.user)
+    ser=AddressSerializer(addresses, many=True)
+    return Response(ser.data)
+
+
+
 """
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
@@ -755,12 +767,13 @@ def add_delivery_address(request,pk):
         return Response({"error": "id address ra vared konid---or----in address motealegh be shoma nist"})
 
     if order=='buy':
-        basket = Basket.objects.get(user=request.user, pk=pk, active=True)
+        basket = Basket.objects.get(user=request.user, pk=pk)
         basket.address = address  # ادرس  فیلد ریلیشن هست همون فوریجن کی@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         basket.save()
         BS=basket
 
     elif order=='returned':
+
         return_basket=ReturningBasket.objects.get(pk=pk,user=request.user,status='accepted')
         return_basket.address=address
         return_basket.save()
@@ -971,7 +984,7 @@ def cancel_item_or_basket(request,pk):
 
             refund_amount=0
             for basket_item in basket_items:
-                refund_amount += basket_item.price
+                refund_amount += (basket_item.price - basket_item.discount)
                 basket_item.content_object.stock+=basket_item.count #@@@@@@@@@@@@@@@@@@@@@@@@@@
                 basket_item.content_object.save() #@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -984,6 +997,9 @@ def cancel_item_or_basket(request,pk):
                 basket.save()
 
             RefundAmount.objects.create(basket=basket,status='C',amount=refund_amount)
+            if basket.deliverydate:
+                basket.deliverydate.capacity -=1
+                basket.deliverydate.save()
 
             return Response({"mesage":"sabt shod"})
 
@@ -1021,7 +1037,7 @@ def cancel_item_or_basket(request,pk):
                 reason=item['reason']
                 basket_item = BasketItem.objects.get(pk=id)
                 # import ipdb; ipdb.set_trace()
-                refund_amount += (basket_item.price/basket_item.count)*count
+                refund_amount += ((basket_item.price-basket_item.discount)/basket_item.count)*count
 
                 cancel_cause, created = CauseOfCancalation.objects.get_or_create\
                     (content_type=basket_item.content_type, object_id=basket_item.object_id, reason=reason)
@@ -1031,9 +1047,16 @@ def cancel_item_or_basket(request,pk):
                 basket_item.content_object.stock += count
                 basket_item.content_object.save()
 
-                basket_item.price -= count * (basket_item.price / basket_item.count)
+                price= count * (basket_item.price/ basket_item.count)
+                basket_item.price -= price
+                basket.total_price -= price
+                discount=count * (basket_item.discount/ basket_item.count)
+                basket_item.discount -= discount
+                basket.total_discount -=discount
                 basket_item.count -= count
+                # basket_item.discount_price =basket_item.price -  basket_item.discount
                 basket_item.save()
+                basket.save()
                 if basket_item.count==0:
                     basket_item.delete()
 
@@ -1043,6 +1066,7 @@ def cancel_item_or_basket(request,pk):
                 # basket.delete()#نمیشه چون وقتی این از بین بره تمام وابسته هاش مثل هزینه مرجوعی هم  از بین میره
                 basket.status="canceled"
                 basket.save()
+
             return Response({"mesage": "sabt shod"})
 
         else:
