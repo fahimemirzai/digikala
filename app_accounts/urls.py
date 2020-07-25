@@ -33,7 +33,7 @@ urlpatterns = [
 
     path('show-comment/', views.show_comment),
     path('comment/delete/<int:pk>', views.delete_comment),
-    # path('comment/update/<int:pk>/', views.update_comment),
+    path('comment/update/<int:pk>/', views.update_comment),
     path('comment/add/', views.add_comment),
     path('comment/like/<int:pk>', views.like_comment),
     path('my-comments',views.my_comments),

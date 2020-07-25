@@ -368,19 +368,48 @@ class AddComment2Serializer(serializers.ModelSerializer):
             return comment
 
 
-    def update(self, validated_data):
+    def update(self,obj, validated_data):
         try:
+            # import ipdb; ipdb.set_trace()
             points = validated_data.pop('good_bad_points')#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+            good_bad_points=GoodBadPoint.objects.filter(comment=obj)
+            for i in good_bad_points:
+                i.delete()
+
+
+            # if bool(points):
+            #     for i in points:
+            #         # import ipdb; ipdb.set_trace()
+            #         if (i.get('point') in ['bad','good']) and i.get('item'):
+            #             pass
+            #
+            #         else:
+            #             raise serializers.ValidationError(" point or item dorost vared nashode")
+            #
+            #     for i in points:
+            #            GoodBadPoint.objects.create(point=i.get('point'),item=i.get('item'))
+            #     return instance
+            #
+            #
+            # else:
+            #     return instance
+
 
             ser = GoodBadPointSerializer(data=points, many=True)
             if ser.is_valid():
-                ser.save()
-                return comment
+                ser.save(comment=obj)
+                obj.viewpoint = validated_data.get('viewpoint', obj.viewpoint)
+                obj.star = validated_data.get('star', obj.star)
+                obj.title = validated_data.get('title', obj.title)
+                obj.offer = validated_data.get('offer', obj.offer)
+                obj.save()
+                return obj
             else:
                 return ser.errors
+
         except:
-            comment = Comment.objects.create(**validated_data, write_date=datetime.date.today())
-            return comment
+            # comment = Comment.objects.create(**validated_data, write_date=datetime.date.today())
+            return obj
 
     class Meta:
         model = Comment

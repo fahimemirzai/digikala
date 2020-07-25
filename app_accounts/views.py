@@ -1054,6 +1054,7 @@ def cancel_item_or_basket(request,pk):
                 basket_item.discount -= discount
                 basket.total_discount -=discount
                 basket_item.count -= count
+                basket.total_discount_price=basket.total_price - basket.total_discount
                 # basket_item.discount_price =basket_item.price -  basket_item.discount
                 basket_item.save()
                 basket.save()

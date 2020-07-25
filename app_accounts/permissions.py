@@ -243,10 +243,9 @@ class HaveActiveReturningBasket(permissions.BasePermission):
 
 class AllowedToSet(permissions.BasePermission):
     def has_permission(self,request,view):
-
         return_basket=ReturningBasket.objects.filter(pk=view.kwargs.get('pk'),user=request.user).\
             exclude(status='canceled').exclude(status='received')
-        # import ipdb; ipdb.set_trace()
+
         return_basket=return_basket.first()
         if bool(return_basket)==False:
             return False
@@ -255,7 +254,6 @@ class AllowedToSet(permissions.BasePermission):
         now=datetime.date.today()
         if not(now in return_time_range):
             return False
-
 
         if return_basket.returning_date :
             if (return_basket.returning_date.returning_date - datetime.date.today()).days >1:
@@ -297,7 +295,6 @@ class CancelledTimeLimit(permissions.BasePermission):#@@@@@@@@@@@@@@@@@@@@@@@@@@
             return False
 
         try:
-
             if bool(basket.deliverydate)==False:
                 return True
             ln=( basket.deliverydate.date - basket.order_registration_date ).days
