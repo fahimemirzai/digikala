@@ -774,7 +774,7 @@ def add_delivery_address(request,pk):
 
     elif order=='returned':
 
-        return_basket=ReturningBasket.objects.get(pk=pk,user=request.user,status='accepted')
+        return_basket=ReturningBasket.objects.get(pk=pk,user=request.user)
         return_basket.address=address
         return_basket.save()
         BS=return_basket
@@ -1142,7 +1142,7 @@ def add_returning_date(request,pk):
     except:
         return Response({'error':'date va time_range ra vared konid'})
 
-    return_basket = ReturningBasket.objects.get(pk=pk, user=request.user, status='accepted')
+    return_basket = ReturningBasket.objects.get(pk=pk, user=request.user)
     # date_range=[return_basket.basket.deliverydate.date + datetime.timedelta(i) for i in range(1,8)] #@@@@@@@@@@@@@@@@
     date_range=[datetime.date.today()+datetime.timedelta(i) for i in range(1,6)]
     try:

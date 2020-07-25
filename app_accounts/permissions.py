@@ -148,6 +148,7 @@ class AdressRegisterAbility(permissions.BasePermission):
             return False
 
         if  order=='buy':
+            #pk بسکت اصلی است
             try:
               pk=view.kwargs.get('pk')
               basket=Basket.objects.filter(pk=pk,user=request.user).exclude(status='favorites').\
@@ -166,12 +167,16 @@ class AdressRegisterAbility(permissions.BasePermission):
                 return False
 
         elif order=='returned':
+            #pk  بسکت مرجوعی است
             try:
                 pk = view.kwargs.get('pk')
-                return_basket=ReturningBasket.objects.get(pk=pk,user=request.user,status='accepted')
-
-                if return_basket.address==None:
+                return_basket=ReturningBasket.objects.filter(pk=pk,user=request.user).exclude(status='canceled').exclude(status='received')
+                return_basket=return_basket.first()
+                if bool(return_basket)==False:
+                    return False
+                elif  return_basket.address==None:
                     return True
+
                 elif (return_basket.returning_date.returning_date - datetime.date.today()).days >= 1: #@@@@@@@@@@@@@@@@@@@@@
                     return True
                 else:
@@ -179,6 +184,8 @@ class AdressRegisterAbility(permissions.BasePermission):
             except:
 
                 return False
+
+
         else:
             return False
 
@@ -243,15 +250,17 @@ class HaveActiveReturningBasket(permissions.BasePermission):
 
 class AllowedToSet(permissions.BasePermission):
     def has_permission(self,request,view):
-        return_basket=ReturningBasket.objects.filter(pk=view.kwargs.get('pk'),user=request.user).\
-            exclude(status='canceled').exclude(status='received')
+        # import ipdb; ipdb.set_trace()
+        return_basket=ReturningBasket.objects.filter(pk=view.kwargs.get('pk'),user=request.user).exclude(status='canceled').exclude(status='received')
 
         return_basket=return_basket.first()
         if bool(return_basket)==False:
             return False
 
+
         return_time_range=[return_basket.basket.deliverydate.date + datetime.timedelta(i) for i in range(0,7)]
         now=datetime.date.today()
+
         if not(now in return_time_range):
             return False
 
