@@ -302,7 +302,7 @@ class ReturningItem(models.Model):
 
 
 class ReturningBasket(models.Model):
-    returning_date=models.ForeignKey('ReturningDate',on_delete=models.CASCADE,null=True,blank=True)
+    returning_date=models.ForeignKey('ReturningDate',on_delete=models.SET_NULL,null=True,blank=True)
     address=models.ForeignKey('Address',on_delete=models.CASCADE,null=True,blank=True)
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     basket=models.ForeignKey('Basket',on_delete=models.CASCADE,null=True)
