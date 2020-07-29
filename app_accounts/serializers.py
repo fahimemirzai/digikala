@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
 import datetime
 # from django.core.exceptions import ValidationError
+from rest_framework.pagination import PageNumberPagination
 
 class UserSerializers(serializers.ModelSerializer):
     # password = serializers.CharField(write_only=True)
@@ -45,7 +46,7 @@ class UserSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'password')
+        fields = ('username', 'password')
         extra_kwargs = {'password': {'required': True}, 'username': {'required': True}}
 
 
@@ -129,6 +130,7 @@ class BasketItemSerializer(serializers.ModelSerializer):
     item = serializers.SerializerMethodField()
     price_one_item = serializers.SerializerMethodField()
     image=serializers.SerializerMethodField()
+    model=serializers.SerializerMethodField()
 
     def get_image(self,obj):
         product_item=obj.content_object
@@ -143,11 +145,14 @@ class BasketItemSerializer(serializers.ModelSerializer):
         return obj.content_object.name  #@@@@@@@@@@@@@@@@@@@@@@@
 
     def get_price_one_item(self, obj, *args, **kwargs):
-        return obj.price /obj.count #@@@@@@@@@@@@@@@@@@@@@@@
+        return (obj.price -obj.discount) /obj.count #@@@@@@@@@@@@@@@@@@@@@@@
+
+    def get_model(self,obj):
+        return str(type(obj))
 
     class Meta:
         model = BasketItem
-        fields = ('item','image','count','content_type', 'price_one_item','price','discount','discount_price')
+        fields = ['item','image','count','content_type', 'price_one_item','price','discount','discount_price','id','model']
         #depth = 1
 
 
@@ -165,7 +170,9 @@ class BasketSerializer(serializers.ModelSerializer):
 
     def get_item_list(self,obj): #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         items = obj.basketitem_set.all()
-        ser = BasketItemSerializer(items, many=True)
+        paginator=PageNumberPagination()
+        pagination_basketitem=paginator.paginate_queryset(items,self.context['request'])#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        ser = BasketItemSerializer(pagination_basketitem, many=True)
         return ser.data #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
     def get_total_discount_persent(self,obj):
@@ -319,7 +326,13 @@ class CommentSerializer1(serializers.Serializer):#خیلی خیلی مهههم �
 
     def get_comments(self,obj):
         comments=self.context['comments'] #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        ser=CommentSerializer(comments,many=True)
+        request=self.context['request']
+
+        paginator = PageNumberPagination()#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        paginator.page_size = 3#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        pagination_comments = paginator.paginate_queryset(comments,request)#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+        ser=CommentSerializer(pagination_comments,many=True)
         return ser.data
 
 
@@ -343,6 +356,7 @@ class AddComment2Serializer(serializers.ModelSerializer):
     good_bad_points=GoodBadPointSerializer(many=True,required=False) #خیییلیی مهم @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
     def validate_offer(self,value):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        # import ipdb; ipdb.set_trace()
         buyer=self.context['buyer']
         if buyer==True:
             return value #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -421,6 +435,7 @@ class AddComment2Serializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     image_items=serializers.SerializerMethodField()
 
+
     def get_image_items(self,obj):
         items=obj.basketitem_set.all()
         ser=BasketItemSerializer(items,many=True)
@@ -429,7 +444,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model=Basket
         # exclude=['user','delivery_date','address','id']
-        fields=['order_number','order_registration_date','total_price','status','payable_amount','position','image_items']
+        fields=['order_number','order_registration_date','status','payable_amount','position','image_items']
 
 
 
@@ -537,7 +552,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=Basket
-        fields=['order_registration_date','order_number','total_price','payable_amount',
+        fields=['order_registration_date','order_number','total_discount_price','payable_amount',
                 'shipping_cost','position','refund_amount','delivery_date_time','address_info','items_info']
 
 
@@ -649,7 +664,7 @@ class ReturningItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=ReturningItem
-        exclude = ['returning_basket','id','basket_item']
+        exclude = ['returning_basket','id','basket_item','descriptions']
 
 
 
@@ -688,12 +703,12 @@ class AddReturnItemSerializer(serializers.ModelSerializer):
 
     def create(self,validated_data):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         obj = super().create(validated_data)
-        obj.purchase_amount=(obj.basket_item.price /obj.basket_item.count) * obj.count #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        obj.purchase_amount=((obj.basket_item.price - obj.basket_item.discount) /obj.basket_item.count) * obj.count #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         obj.save()
         return obj
 
     def update(self,obj,validated_data):# $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-        obj.purchase_amount=(obj.basket_item.price /obj.basket_item.count) * validated_data.get('count')#$$$$$$$$$$$$$$$$$$$$$$$$$
+        obj.purchase_amount=((obj.basket_item.price -obj.basket_item.discount)/obj.basket_item.count) * validated_data.get('count')#$$$$$$$$$$$$$$$$$$$$$$$$$
 
         obj.count=validated_data.get('count', obj.count)#$$$$$$$$$$$$$$$$$$$$$$$$$$
         obj.reason = validated_data.get('reason', obj.reason)

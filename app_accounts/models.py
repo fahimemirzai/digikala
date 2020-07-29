@@ -140,6 +140,7 @@ class Profile(models.Model):
     national_code = models.CharField(max_length=10,validators=[MinLengthValidator(10),
                                                                validate_national_code],null=True,blank=True)
 
+
     def save(self, *args, **kwargs):#کل این تابع ???????????????????????????????????????????????????????
         if self._state.adding is True:
             super(Profile, self).save(*args, **kwargs)
@@ -157,6 +158,11 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+class ValidationCode(models.Model):
+    user=models.OneToOneField(User,on_delete=models.CASCADE,null=True)
+    validation_code = models.CharField(max_length=4, validators=[MinLengthValidator(4)], null=True)
+
 
 
 def create_profile(sender,**kwargs): #??????????????????????????????????
@@ -334,5 +340,6 @@ class RefundAmount(models.Model):
     basket=models.ForeignKey(Basket,on_delete=models.CASCADE,null=True)
     STATUS=(('C','canceled'),('R','returned'))
     status=models.CharField(max_length=1,choices=STATUS,null=True)
+
     paid=models.BooleanField(default=False,null=True)
     amount=models.PositiveIntegerField(null=True,blank=True,default=0)

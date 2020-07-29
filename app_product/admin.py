@@ -22,7 +22,7 @@ class CellphoneAdmin(admin.ModelAdmin):
         ('Other Features', {'fields': ('sensor', 'battery_specifications', 'battery_item_description',
                                        'battery_charging', 'conversation_charging_rate', 'cell_phone_items')}),
         ('@', {'fields': ('name', 'dimensions', 'other_description')}),
-        ('#', {'fields': ('price', 'stock','discount')})
+        ('#', {'fields': ('price', 'stock','discount','status')})
 
     )
 

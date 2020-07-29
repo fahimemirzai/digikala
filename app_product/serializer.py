@@ -5,12 +5,18 @@ from app_accounts.models import Comment
 from django.contrib.contenttypes.models import ContentType
 
 class CellphoneSerializer(ModelSerializer):
+    model=serializers.SerializerMethodField()
     discount_percent = serializers.SerializerMethodField()
     number_of_comments=serializers.SerializerMethodField()
     color = serializers.SerializerMethodField()
     number_of_voter = serializers.SerializerMethodField()
     average_vote = serializers.SerializerMethodField()
     all_image = serializers.SerializerMethodField()
+    status_product=serializers.SerializerMethodField()
+
+
+    def get_model(self,obj):
+        return str(type(obj)) ###################################################################
 
     def get_discount_percent(self,obj):
         return obj.discount/obj.price
@@ -41,14 +47,23 @@ class CellphoneSerializer(ModelSerializer):
         ct=ContentType.objects.get_for_model(obj)#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
         images=Photo.objects.filter(content_type=ct,object_id=obj.id)
         if bool(images):
+            image_list=[]
             ser=PhotoSerializer(images,many=True)
-            return ser.data
+            for i in ser.data:#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+                image_list.append(str(i['image_url']))#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+            return image_list
+
+
         else:
             return None
 
     def get_number_of_comments(self,obj):
            model=ContentType.objects.get_for_model(obj)
            return Comment.objects.filter(content_type=model,object_id=obj.id).count() #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    def get_status_product(self,obj):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        return obj.status_product
 
     class Meta:
         model = Cellphone
@@ -60,8 +75,10 @@ class AllCellphoneSerializer(ModelSerializer):
     discount_percent=serializers.SerializerMethodField()
     number_of_voter=serializers.SerializerMethodField()
     average_vote=serializers.SerializerMethodField()
+    model=serializers.SerializerMethodField()
 
     def get_image(self,obj):
+
         if obj.photo.first():
             return obj.photo.first().image_url
         else:
@@ -89,9 +106,13 @@ class AllCellphoneSerializer(ModelSerializer):
             # import ipdb; ipdb.set_trace()
             return sum/count
 
+    def get_model(self,obj):
+        return str(obj.__class__ )########################################### type(obj)== obj.__class__
+
     class Meta:
         model=Cellphone
-        fields=['name','image','color','price','discounted_price','discount_percent','number_of_voter','average_vote']
+
+        fields=['name','image','color','price','discounted_price','discount_percent','number_of_voter','average_vote','id','model']
 
 
 
@@ -136,4 +157,4 @@ class PhotoSerializer(ModelSerializer):
 class ColorSerializer(ModelSerializer):
     class Meta:
         model=Color
-        fields=['colors','available']
+        fields=['color','available']

@@ -53,7 +53,7 @@ class IsOwner(permissions.BasePermission):
 class MustAnonymouse(permissions.BasePermission):
     def has_permission(self,request,view):
 
-        if request.user.is_anonymous or request.user.is_superuser:#@@@@@@@@@@@@@@@@@@@@@
+        if request.user.is_anonymous :#@@@@@@@@@@@@@@@@@@@@@ or request.user.is_superuser
             return True
         else:
             return False
@@ -211,8 +211,7 @@ class HaveInactiveReturningBasket(permissions.BasePermission):
         try:
             pk=view.kwargs['pk']
             basket=Basket.objects.get(pk=pk)
-            return_basket=basket.returningbasket_set.filter(basket=basket).exclude(status='canceled').\
-                exclude(status='received')
+            return_basket=basket.returningbasket_set.filter(basket=basket).exclude(status='canceled').exclude(status='received')
         except:
             return False
         if bool(return_basket)==True:
@@ -277,9 +276,7 @@ class AllowedToSet(permissions.BasePermission):
 class AllowCancelledReturnBasket(permissions.BasePermission):
     def has_permission(self,request,view):
         try:
-
-            return_basket=ReturningBasket.objects.filter(pk=view.kwargs.get('pk'),user=request.user).exclude(status='canceled').\
-                exclude(status='received')
+            return_basket=ReturningBasket.objects.filter(pk=view.kwargs.get('pk'),user=request.user,status='accepted')
             return_basket=return_basket.first()
             if not(return_basket):
                 return False

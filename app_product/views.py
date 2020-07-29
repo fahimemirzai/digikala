@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from itertools import chain
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.pagination import PageNumberPagination
 
 
 
@@ -15,6 +16,7 @@ class ProductList(generics.ListAPIView):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     ##serializer_class = CellphoneSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['name','stock','price']
+    pagination_class=PageNumberPagination
 
     def get_queryset(self):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         MODELS = ['Cellphone', 'Tablet', 'Laptop', 'Television']

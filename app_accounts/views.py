@@ -16,9 +16,9 @@ from django.contrib.auth.models import User
 from app_accounts.permissions import IsOwner, MustAnonymouse,Comment_Owner,PublishPermission,\
     JustOneComment,IsNotOwner,AdressRegisterAbility,ActiveTrueBasket,ReturnTimeLimit,AllowedToSet,\
     AllowCancelledReturnBasket,CancelledTimeLimit,HaveInactiveReturningBasket,HaveActiveReturningBasket,\
-    YourOrder
+    YourOrder,YourReturnBasket
 from .models import BasketItem, Basket, Profile,Address,Comment,Like,Question,Reply,\
-    DeliveryDate,ReturningBasket,ReturningDate,ReturningItem,RefundAmount
+    DeliveryDate,ReturningBasket,ReturningDate,ReturningItem,RefundAmount,ValidationCode
 
 from app_product.models import Cellphone, Tablet, Laptop, Television,CauseOfCancalation
 from django.contrib.contenttypes.models import ContentType
@@ -27,6 +27,10 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import Q
 # from passlib.hash import pbkdf2_sha256
 from kavenegar import *
+from rest_framework.pagination import PageNumberPagination
+import requests
+import urllib.parse
+from rest_framework.authtoken.models import Token
 
 
 
@@ -36,7 +40,7 @@ def register(request):
     ser = UserSerializers(data=request.data)
     if ser.is_valid():
         ser.save()
-        return Response(ser.data)
+        return Response({'message':'sabt name shoma anjam shod'})
     else:
         return Response(ser.errors)
 
@@ -191,7 +195,10 @@ def EditProfileView(request):
 def show_address(request):
     profile=Profile.objects.get(user=request.user)
     addresses=profile.address_set.all()
-    ser=AddressSerializer(addresses,many=True)
+    paginate=PageNumberPagination()#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    paginate.page_size=1#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    pagination_address=paginate.paginate_queryset(addresses,request)#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    ser=AddressSerializer(pagination_address,many=True)
     return Response(ser.data)
 
 
@@ -377,7 +384,7 @@ def reduce_basket_item(request):
 @permission_classes((IsAuthenticated,))
 def show_basket(request):
         basket= Basket.objects.filter(status='active',user=request.user)
-        ser = BasketSerializer(basket,many=True)
+        ser = BasketSerializer(basket,many=True,context={'request':request})
         return Response(ser.data)
 
 
@@ -386,7 +393,9 @@ def show_basket(request):
 def show_favorites(request):
     basket,created=Basket.objects.get_or_create(user=request.user,status='favorites')
     items=basket.basketitem_set.all()
-    ser=FavoritesItemSerializer(items,many=True)
+    paginator=PageNumberPagination()
+    pagination_items=paginator.paginate_queryset(items,request)
+    ser=FavoritesItemSerializer(pagination_items,many=True)
     return Response(ser.data)
 
 
@@ -437,8 +446,10 @@ def add_reduce_favorites(request):
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def my_comments(request):
-    comment=Comment.objects.filter(user=request.user)
-    ser = CommentSerializer(comment,many=True)
+    comments=Comment.objects.filter(user=request.user)
+    paginator=PageNumberPagination()
+    pagination_comments=paginator.paginate_queryset(comments,request)
+    ser = CommentSerializer(pagination_comments,many=True)
     return Response(ser.data)
 
 
@@ -531,7 +542,16 @@ def update_comment(request,pk):
         return Response(ser.data)
 
     elif  request.method=='PUT':
-        ser=AddComment2Serializer(comment,data=request.data)
+        ct=comment.content_type
+        obj_id=comment.object_id
+        basket_item = BasketItem.objects.filter(content_type=ct, object_id=int(obj_id),
+                                                basket__user=request.user, basket__delivered=True)
+
+        if bool(basket_item) == True:
+            buyer = True
+        else:
+            buyer = False
+        ser=AddComment2Serializer(comment,data=request.data,context={'buyer':buyer})
         if ser.is_valid():
             ser.save()
             return Response({'message':'sabt shod'})
@@ -634,6 +654,7 @@ def like_comment(request,pk):
 
 @api_view(['GET'])
 def show_comment(request):
+    # import ipdb; ipdb.set_trace()
     if request.GET.get('obj_type') and request.GET.get('obj_id'):
         obj_type=request.GET.get('obj_type')
         obj_id=request.GET.get('obj_id')
@@ -667,7 +688,7 @@ def show_comment(request):
     else:
         return Response({"error":"order ra moshakhas konid"})
 
-    ser=CommentSerializer1(product,context={'comments':cm})#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$خیلی خیلی مهم توجه کن خوب--> خود محصول و کامنت هاش
+    ser=CommentSerializer1(product,context={'comments':cm,'request': request})#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$خیلی خیلی مهم توجه کن خوب--> خود محصول و کامنت هاش
     return Response(ser.data)
 
 
@@ -707,37 +728,49 @@ def show_orders(request):
     try:
         type=request.GET['type']  #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     except:
-        order=Basket.objects.filter(user=request.user).exclude(status='active').exclude(status='favorites').\
-        order_by('order_registration_date')[0:10] #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        ser =OrderSerializer(order, many=True)
+        order=Basket.objects.filter(user=request.user).exclude(status='active').exclude(status='favorites').order_by('order_registration_date')[0:10] #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        paginate=PageNumberPagination()
+        paginate.page_size=3
+        pagination_order=paginate.paginate_queryset(order,request)
+        ser =OrderSerializer(pagination_order, many=True)
         return Response(ser.data)
-
 
     if type=='current':
         order1=Basket.objects.filter(user=request.user,status='pardakht')
         order2=Basket.objects.filter(user=request.user,status='pardakht-shod')
         order=order1 |order2           # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         order=order.exclude( delivered=True)  #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-        ser = OrderSerializer(order, many=True)
+        paginate = PageNumberPagination()
+        paginate.page_size = 3
+        pagination_order = paginate.paginate_queryset(order, request)
+        ser = OrderSerializer(pagination_order, many=True)
         return Response(ser.data)
 
     elif type=='delivered':
         order=Basket.objects.filter(user=request.user,delivered=True)
-        ser = OrderSerializer(order, many=True)
-        return Response(ser.data)
-    elif type=='canceled':
-        order = Basket.objects.filter(user=request.user, status='canceled')
-        ser = OrderSerializer(order, many=True)
+        paginate = PageNumberPagination()
+        paginate.page_size = 3
+        pagination_order = paginate.paginate_queryset(order, request)
+        ser = OrderSerializer(pagination_order, many=True)
         return Response(ser.data)
 
+    elif type=='canceled':
+        order = Basket.objects.filter(user=request.user, status='canceled')
+        paginate = PageNumberPagination()
+        paginate.page_size = 3
+        pagination_order = paginate.paginate_queryset(order, request)
+        ser = OrderSerializer(pagination_order, many=True)
+        return Response(ser.data)
 
     elif type=='returned':
         order=ReturningBasket.objects.filter(user=request.user)
-        ser=ReturnedBasketSerializer(order,many=True)
+        paginate = PageNumberPagination()
+        paginate.page_size = 3
+        pagination_order = paginate.paginate_queryset(order, request)
+        ser=ReturnedBasketSerializer(pagination_order,many=True)
         return Response(ser.data)
     else:
         return Response({'error type must be in ["current","delivered","canceled","returned"]'})
-
 
 
 
@@ -747,9 +780,6 @@ def order_item(request,pk):
     order = Basket.objects.get(pk=pk, user=request.user)
     ser=OrderItemSerializer(order)
     return Response(ser.data)
-
-
-
 
 
 
@@ -1076,13 +1106,9 @@ def cancel_item_or_basket(request,pk):
 
 
 @api_view(['GET'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticated,YourReturnBasket))
 def show_returning_basket(request,pk):
-    try:
-        returning_basket=ReturningBasket.objects.get(pk=pk,user=request.user)
-    except:
-        return Response({"error":"chenin returning_basket vojod nadarad ya motealegh be shoma nist"})
-
+    returning_basket=ReturningBasket.objects.get(pk=pk,user=request.user)
     ser=ReturningBasketSerializer(returning_basket)
     return Response(ser.data)
 
@@ -1098,7 +1124,6 @@ def canceled_returning_basket(request,pk):
              return Response(ser.data)
          if request.method=='PUT':
             try:
-
                 message=request.data['message']
                 if message !='canceled':
                     return Response({'error':'payam dorost vared nashode'})
@@ -1113,7 +1138,6 @@ def canceled_returning_basket(request,pk):
                item.status = 'canceled'
                item.save()
 
-
             if bool(returning_basket.returning_date):
                 returning_basket.returning_date.capacity -=1
                 returning_basket.returning_date.save()
@@ -1124,7 +1148,6 @@ def canceled_returning_basket(request,pk):
             if bool(returning_basket.address):
                 returning_basket.address=None
                 returning_basket.save()
-
 
             ser=ReturningBasketSerializer(returning_basket)
             return Response(ser.data)
@@ -1209,7 +1232,7 @@ def add_returning_items(request,pk):
 
 
         returning_basket=ReturningBasket.objects.create(user=request.user,basket=basket,status='active',
-                                                       registration_date=datetime.date.today()) # status='accepted'هم باید بتونه باشه چی کار کنم؟؟؟؟؟
+                                                registration_date=datetime.date.today()) # status='accepted'هم باید بتونه باشه چی کار کنم؟؟؟؟؟
 
         refund_amount=0
         for item in items:
@@ -1237,7 +1260,7 @@ def edite_returning_items(request,pk):
     basket_items = basket.basketitem_set.all()
 
     return_basket = basket.returningbasket_set.all().exclude(status="canceled").exclude(status="received").first()
-    return_items = [i.basket_item for i in return_basket.returningitem_set.all()]  # $$$$$$$$$$$$$$$$$$$$$$$$$$$
+    return_items = [i.basket_item for i in return_basket.returningitem_set.all().exclude(status='canceled')]  # $$$$$$$$$$$$$$$$$$$$$$$$$$$
 
     if request.method=='GET':
         ser=BasketItemSerializer(return_items,many=True)
@@ -1257,7 +1280,7 @@ def edite_returning_items(request,pk):
                 id = item['basket_item']
                 delete = item['delete']
                 itm = basket.basketitem_set.get(pk=id)
-                if not(itm in return_items):
+                if not(itm in return_items) :
                     return Response({'error':'chenin itemi dar returning_basket shoma vojod nadarad'})
 
             except:
@@ -1326,9 +1349,56 @@ def edite_returning_items(request,pk):
 
 
 
+   #
+   # main_api='https://raygansms.com/SendMessageWithUrl.ashx?'
+   # url=main_api + urllib.parse.urlencode({'Username':'09123669277','Password':'5989231',
+   #                                        'PhoneNumber':'50002910001080','MessageBody':'سلام خوبی؟ فهیمه فرزانه',
+   #                                        'RecNumber':'09123669277','Smsclass':'1'})
+   #
+   #
+   # json_data=requests.get(url).json()#مهمه
+   #
+   # # print(json_data)
+   #
+   # return Response({'hh':'aa'})
+
+@api_view(['POST'])
+@permission_classes((MustAnonymouse,))
+def login_register(request):
+   if request.method=='POST':
+       mobile=str(request.data['mobile'])
+       rand =str(random.randrange(1000, 10000))
+       message=f' کد اعتباری سنجی شما : {rand}'
+       user,create=User.objects.get_or_create(username=mobile)
+       user_validation,create=ValidationCode.objects.get_or_create(user=user)
+       user_validation.validation_code=rand
+       user_validation.save()
+
+       main_api='https://raygansms.com/SendMessageWithUrl.ashx?' #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       url=main_api + urllib.parse.urlencode({'Username':'09123669277','Password':'5989231',
+                                              'PhoneNumber':'50002910001080','MessageBody':message,
+                                              'RecNumber':mobile,'Smsclass':'1'}) #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       json_data = requests.get(url).json() #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       return Response({'message':'کد اعتبارسنجی برای شما ارسال شد.ان را وارد کنید'})
 
 
+@api_view(['POST'])
+@permission_classes((MustAnonymouse,))
+def confirm_code(request):
+    try:
+        mobile=str(request.data['mobile'])
+        code=str(request.data['code'])
+        user_code = ValidationCode.objects.get(user__username=mobile).validation_code
+        user=User.objects.get(username=mobile)
+    except:
+        return Response({"ERROR":"mobile or code vared nashode"})
 
+    if user_code==code:
+        token, create = Token.objects.get_or_create(user=user)
+        return Response({'Token':token.key})
+
+    else:
+        return Response({'error':'error'})
 
 
 
@@ -1353,9 +1423,6 @@ def edite_returning_items(request,pk):
     
 
     
-
-
-
 
 
 

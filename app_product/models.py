@@ -32,8 +32,16 @@ class BaseProduct(models.Model):
     def discounted_price(self): #jadid
         return self.price - self.discount
 
-    STATUS=(('A','available'),('S','soon'),('O','out of stock'))
-    status=models.CharField(max_length=1,choices=STATUS,null=True)
+    STATUS=(('A','در دسترس'),('S','به زودی'),('O','اتمام موجودی'))
+    status=models.CharField(max_length=1,choices=STATUS,null=True,default='A')
+    @property
+    def status_product(self):
+        if self.status=='A':
+            return 'در دسترس'
+        elif self.status=='S':
+            return 'به زودی'
+        elif self.status=='O':
+            return 'اتمام موجودی'
 
     basket_items = GenericRelation(BasketItem,related_query_name='basket_items')
     comments = GenericRelation(Comment)
@@ -140,8 +148,10 @@ class Color(models.Model):
     object_id = models.PositiveIntegerField(null=True)
     content_object = GenericForeignKey('content_type', 'object_id')
 
-    COLORS=(('1','red'),('2','blue'),('3','yellow'),('4','pink'),('5','black'))
-    colors=models.CharField(max_length=1,choices=COLORS,null=True)
+
+    color=models.CharField(max_length=20,null=True)
+    color_hex=models.CharField(max_length=7,null=True)
+
     capacity=models.PositiveIntegerField(default=0,null=True)
 
     @property

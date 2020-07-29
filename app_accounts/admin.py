@@ -72,3 +72,9 @@ class ReturningDateAdmin(admin.ModelAdmin):
 @admin.register(models.RefundAmount)
 class RefundAmountAdmin(admin.ModelAdmin):
     pass
+
+
+
+@admin.register(models.ValidationCode)
+class ValidationCodeAdmin(admin.ModelAdmin):
+    pass

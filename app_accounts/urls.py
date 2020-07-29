@@ -59,6 +59,8 @@ urlpatterns = [
     path('add-returning-items/<int:pk>',views.add_returning_items),
     path('edite-returning-items/<int:pk>', views.edite_returning_items),
 
+    path('login-register/',views.login_register),
+    path('confirm-code/',views.confirm_code),
 
 ]
 
