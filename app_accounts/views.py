@@ -1365,7 +1365,7 @@ def edite_returning_items(request,pk):
 @api_view(['POST'])
 @permission_classes((MustAnonymouse,))
 def login_register(request):
-   if request.method=='POST':
+       
        mobile=str(request.data['mobile'])
        rand =str(random.randrange(1000, 10000))
        message=f' کد اعتباری سنجی شما : {rand}'
