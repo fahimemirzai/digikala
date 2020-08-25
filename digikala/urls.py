@@ -19,6 +19,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_swagger.views import get_swagger_view
 
+from graphene_django.views import GraphQLView #################### FOR GRAPH_QL
+from .schema import schema #################### FOR GRAPH_QL
+
 
 schema_view = get_swagger_view(title='digikala_api')
 
@@ -28,6 +31,10 @@ urlpatterns = [
     path('api/product/', include('app_product.urls')),
     path('api/accounts/', include('app_accounts.urls')),
     path('', schema_view),
+
+    path('graphql/',GraphQLView.as_view(schema=schema, graphiql=True)), #################### FOR GRAPH_QL
+    # path('graphql',PrivateGraphQLView.as_view(graphiql=True, schema=schema)), #################### FOR GRAPH_QL
+
 
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -16,7 +16,8 @@ class CellphoneSerializer(ModelSerializer):
 
 
     def get_model(self,obj):
-        return str(type(obj)) ###################################################################
+        # return self.__class__.__name_###################################################################
+        return  str(ContentType.objects.get_for_model(obj))
 
     def get_discount_percent(self,obj):
         return obj.discount/obj.price
@@ -107,7 +108,9 @@ class AllCellphoneSerializer(ModelSerializer):
             return sum/count
 
     def get_model(self,obj):
-        return str(obj.__class__ )########################################### type(obj)== obj.__class__
+        # return str(obj.__class__ )########################################### type(obj)== obj.__class__
+        return  str(ContentType.objects.get_for_model(obj)) #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 
     class Meta:
         model=Cellphone
@@ -157,4 +160,4 @@ class PhotoSerializer(ModelSerializer):
 class ColorSerializer(ModelSerializer):
     class Meta:
         model=Color
-        fields=['color','available']
+        fields=['color','available','color_hex']

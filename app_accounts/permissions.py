@@ -1,9 +1,9 @@
 from rest_framework import permissions
 from rest_framework.response import Response
 from django.contrib.auth.models import User
-from .models import Comment,Basket,ReturningBasket,BasketItem,Address
+from .models import Comment,Basket,ReturningBasket,BasketItem,Address#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+from app_product.models import Cellphone #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 from django.contrib.contenttypes.models import ContentType
-from app_product.models import Cellphone
 import datetime
 
 
@@ -32,9 +32,6 @@ class ActiveTrueBasket(permissions.BasePermission):
             return True
 
 
-
-
-
 class IsOwner(permissions.BasePermission):
     def has_permission(self,request,view):
         try:
@@ -48,8 +45,6 @@ class IsOwner(permissions.BasePermission):
             return False
 
 
-
-
 class MustAnonymouse(permissions.BasePermission):
     def has_permission(self,request,view):
 
@@ -58,14 +53,9 @@ class MustAnonymouse(permissions.BasePermission):
         else:
             return False
 
-#
-# class OneComment(permissions.BasePermission):
-#     def has_permission(self,request,view):
-#         pass
 
 class Comment_Owner(permissions.BasePermission):#برای قسمت های دیلیت و اپدیت
     def has_permission(self,request,view):
-
         pk=view.kwargs.get('pk',None) #@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         try:
             comment=Comment.objects.get(pk=pk,user=request.user)
@@ -88,11 +78,9 @@ class PublishPermission(permissions.BasePermission):#فقط برای قسمت ا
             comment=Comment.objects.get(pk=view.kwargs['pk'])
 
         except:
-            print("*" *100)
             return False
 
         if comment.publish==True:
-            print("!"*100)
             return False
         else:
             return True
@@ -101,7 +89,9 @@ class PublishPermission(permissions.BasePermission):#فقط برای قسمت ا
 
 class JustOneComment(permissions.BasePermission):
 
+
     def has_permission(self,request,view):
+        # import ipdb; ipdb.set_trace()
         MODELS = ['Cellphone', 'Tablet', 'Laptop', 'Television']
         try:
             obj_id = request.GET["obj_id"]
@@ -134,9 +124,6 @@ class IsNotOwner(permissions.BasePermission):
             return False
         else:
             return True
-
-
-
 
 
 
@@ -294,8 +281,7 @@ class AllowCancelledReturnBasket(permissions.BasePermission):
 class CancelledTimeLimit(permissions.BasePermission):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     def has_permission(self,request,view):
         try:
-            # import ipdb;
-            # ipdb.set_trace()
+
             basket=Basket.objects.get(pk=view.kwargs['pk'],user=request.user,status='pardakht-shod')
         except:
             return False
@@ -304,7 +290,7 @@ class CancelledTimeLimit(permissions.BasePermission):#@@@@@@@@@@@@@@@@@@@@@@@@@@
             if bool(basket.deliverydate)==False:
                 return True
             ln=( basket.deliverydate.date - basket.order_registration_date ).days
-            date_range=[basket.order_registration_date + datetime.timedelta(i) for i in range(0,ln)]
+            date_range=[basket.order_registration_date + datetime.timedelta(i) for i in range(0,ln)]#@@@@@@@@@@@@@@@@@@@@@@
             now=datetime.date.today()
         except:
             return False
@@ -326,7 +312,9 @@ class YourOrder(permissions.BasePermission):
 class YourReturnBasket(permissions.BasePermission):
     def has_permission(self,request,view):
         try:
+
             pk=view.kwargs['pk']
             return_basket=ReturningBasket.objects.get(pk=pk,user=request.user)
         except:
             return False
+        return True

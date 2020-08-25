@@ -44,8 +44,24 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app_zarinpal',
     'django_filters',
+    #~~~~~~~~~~~~~~~~~~~~~~~~Gragh-QL
+    'app_graph',
+    'graphene_django',
+
 
 ]
+
+
+GRAPHENE={
+    "SCHEMA": "digikala.schema.schema",
+    'MIDDLEWARE': ['graphql_jwt.middleware.JSONWebTokenMiddleware',],
+
+         } ###for GRAPHENE
+
+AUTHENTICATION_BACKENDS = [
+    'graphql_jwt.backends.JSONWebTokenBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]  ###for GRAPHENE
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

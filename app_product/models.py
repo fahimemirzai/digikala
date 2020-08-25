@@ -201,5 +201,11 @@ class CauseOfCancalation(models.Model):
     object_id=models.PositiveIntegerField(null=True)
     content_object = GenericForeignKey('content_type', 'object_id')
 
+    @property
+    def cancel_reason(self):
+        return dict(self.REASON)[self.reason]
+
+
+
 
 
