@@ -33,98 +33,84 @@ class ActiveTrueBasket(permissions.BasePermission):
 
 
 class IsOwner(permissions.BasePermission):
-    def has_permission(self,request,view):
+    def has_permission(self, request, view):
         try:
-            address=Address.objects.get(pk=view.kwargs['pk'])
-        except:
+            address = Address.objects.get(pk=view.kwargs['pk'])  # 222222222222222222222222222222
+        except Address.DoesNotExist:
             return False
-        # if request.user.is_superuser or request.user==user:#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        if address.profile.user==request.user :#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ address__profile__user به این شکل اشتباهه حواست باشه
+        # if request.user.is_superuser or request.user==user: # 222222222222222222222222222222
+        if address.profile.user == request.user:  # 222222222222222222222222222222 address__profile__user به این شکل اشتباهه حواست باشه
             return True
         else:
             return False
 
 
 class MustAnonymouse(permissions.BasePermission):
-    def has_permission(self,request,view):
+    def has_permission(self, request, view):
 
-        if request.user.is_anonymous :#@@@@@@@@@@@@@@@@@@@@@ or request.user.is_superuser
+        if request.user.is_anonymous:  # 111111111111111111111111111111(*)
             return True
         else:
             return False
 
 
-class Comment_Owner(permissions.BasePermission):#برای قسمت های دیلیت و اپدیت
-    def has_permission(self,request,view):
-        pk=view.kwargs.get('pk',None) #@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+class Comment_Owner(permissions.BasePermission):
+    def has_permission(self, request, view):
+        pk = view.kwargs.get('pk', None)  # @@@@@@@@@@@@@@@
+        if pk == None:
+            return False
         try:
-            comment=Comment.objects.get(pk=pk,user=request.user)
+            comment = Comment.objects.get(pk=pk, user=request.user)
             return True
-        except:
+        except Comment.DoesNotExist:
             return False
 
 
+class PublishPermission(permissions.BasePermission):  # فقط برای قسمت اپدیت یک کامنتا
 
-class PublishPermission(permissions.BasePermission):#فقط برای قسمت اپدیت یک کامنتا
-
-    def has_permission(self,request,view):
+    def has_permission(self, request, view):
         try:
-
-            # obj_id = request.GET["obj_id"]
-            # obj_type = request.GET["obj_type"]
-            # ct = ContentType.objects.get(model=obj_type.lower())
-            # comment = Comment.objects.get(user=request.user, content_type=ct, object_id=int(obj_id),
-            #                               pk=view.kwargs['pk'])
-            comment=Comment.objects.get(pk=view.kwargs['pk'])
-
-        except:
+            comment = Comment.objects.get(pk=view.kwargs['pk'], user=request.user)
+        except Comment.DoesNotExist:
             return False
 
-        if comment.publish==True:
+        if comment.publish == True:
             return False
         else:
             return True
-
 
 
 class JustOneComment(permissions.BasePermission):
-
-
-    def has_permission(self,request,view):
-        # import ipdb; ipdb.set_trace()
+    def has_permission(self, request, view):
         MODELS = ['Cellphone', 'Tablet', 'Laptop', 'Television']
         try:
             obj_id = request.GET["obj_id"]
             obj_type = request.GET["obj_type"]
-
-            mdl=eval(obj_type) #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@==<class 'app_product.models.Cellphone'>
+            mdl = eval(obj_type)  # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@==<class 'app_product.models.Cellphone'>
             product = mdl.objects.get(pk=int(obj_id))
-            ct = ContentType.objects.get(model=obj_type.lower())# @@@@@@@@@@@@@@@@@@@@@@@==<ContentType: cellphone>
+            ct = ContentType.objects.get(model=obj_type.lower())  # @@@@@@@@@@@@@@@@@@@@@@@==<ContentType: cellphone>
 
-        except:
+        except KeyError or NameError or mdl.DoesNotExist:  # $$$$$$$$$$$$$$$$$
             return False
-
         try:
             comment = Comment.objects.get(user=request.user, content_type=ct, object_id=int(obj_id))
-        except:
-           return True
+        except Comment.DoesNotExist:
+            return True
         return False
 
 
-
 class IsNotOwner(permissions.BasePermission):
-    def has_permission(self,request,view):
+    def has_permission(self, request, view):
         try:
-            pk=view.kwargs['pk']
+            pk = view.kwargs['pk']
             comment = Comment.objects.get(pk=pk)
-        except:
+        except Comment.DoesNotExist:
             return False
 
-        if comment.user==request.user:
+        if comment.user == request.user:
             return False
         else:
             return True
-
 
 
 class AdressRegisterAbility(permissions.BasePermission):
@@ -300,14 +286,14 @@ class CancelledTimeLimit(permissions.BasePermission):#@@@@@@@@@@@@@@@@@@@@@@@@@@
             return False
 
 
-
 class YourOrder(permissions.BasePermission):
-    def has_permission(self,request,view):
+    def has_permission(self, request, view):
         try:
             order = Basket.objects.get(pk=view.kwargs['pk'], user=request.user)
-        except:
+        except Basket.DoesNotExist:
             return False
         return True
+
 
 class YourReturnBasket(permissions.BasePermission):
     def has_permission(self,request,view):

@@ -21,7 +21,7 @@ from .validation import validate_order_number, validate_mailing_code, validate_c
 
 class BasketItem(models.Model):
     basket = models.ForeignKey('Basket', on_delete=models.CASCADE, null=True)
-    count = models.PositiveSmallIntegerField(default=0)
+    count = models.PositiveSmallIntegerField(default=0)  # 111111111111111111111111111111
     price = models.PositiveIntegerField(null=True, blank=True, default=0)  # (تعداد*هزینه هرکدوم)==
     discount = models.PositiveIntegerField(default=0, null=True)
 
@@ -30,7 +30,7 @@ class BasketItem(models.Model):
         return self.price - self.discount
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
-                                     null=True)  # app_label-->model-->id(id mahsole)
+                                     null=True)  # app_label-->model-->id(id mahsol)
     object_id = models.PositiveIntegerField(null=True)
     content_object = GenericForeignKey('content_type', 'object_id')
 
@@ -38,24 +38,21 @@ class BasketItem(models.Model):
 class Basket(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.ForeignKey('Address', on_delete=models.SET_NULL, null=True,
-                                blank=True)  # @@@@@@@@@@@@@@@@ SET_NULL
-
+                                blank=True)  # 222222222222222222222222222222 SET_NULL
     STATUS = (('active', 'active'), ('favorites', 'favorites'), ('pardakht', 'pardakht'),
-              ('pardakht-shod', 'pardakht-shod'), ('canceled', 'canceled'),)
-
-    delivered = models.BooleanField(null=True, default=False)
+              ('pardakht-shod', 'pardakht-shod'), ('canceled', 'canceled'))
     status = models.CharField(max_length=30, choices=STATUS, null=True, )
+    delivered = models.BooleanField(null=True, default=False) # 111111111111111111111111111111
     order_number = models.CharField(max_length=13, validators=[MinLengthValidator(13),
-                                                               validate_order_number], null=True,
-                                    blank=True)  # @@@@@@@@@@@@@@@@@@@@@@@@@
+                                                               validate_order_number], null=True, blank=True)
     total_price = models.PositiveIntegerField(default=0, null=True)
     total_discount = models.PositiveIntegerField(default=0, null=True)
     total_discount_price = models.PositiveIntegerField(default=0, null=True)
 
-    @property  # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    @property   # 222222222222222222222222222222
     def payable_amount(self):
         if self.total_price == 0:
-            return None
+            return None # 222222222222222222222222222222
 
         elif self.total_discount_price >= 200:
             return self.total_discount_price
@@ -68,6 +65,8 @@ class Basket(models.Model):
         #     return None
         if self.total_discount_price >= 200:
             return 0
+        elif self.total_discount_price==0:
+            return None
         else:
             return 9.5
 
@@ -83,8 +82,7 @@ class Basket(models.Model):
         if self.order_registration_date:
             m_date = self.order_registration_date
             jdate = jdatetime.date.fromgregorian(year=m_date.year, month=m_date.month, day=m_date.day)
-            # import ipdb; ipdb.set_trace()
-            return jdate
+            return str(jdate) #@@@@@@@@
 
 
 class DeliveryDate(models.Model):
@@ -108,14 +106,14 @@ class DeliveryDate(models.Model):
 
     @property
     def range_time(self):
-        return dict(self.TIME_RANGE)[self.time_range]  # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        return dict(self.TIME_RANGE)[self.time_range]  # @@@@@@@@@@@@@@@@@@@@@@@
 
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     _birth_date = models.DateField(null=True, blank=True)
     bank_card = models.CharField(max_length=16, validators=[MinLengthValidator(16)], null=True,
-                                 blank=True)  # @@@@@@@@@@@@@@@
+                                 blank=True)  # 111111111111111111111111111111
     foreign_national = models.BooleanField(default=False)
     newsletter_receive = models.BooleanField(default=False, null=True, blank=True)
     national_code = models.CharField(max_length=10, validators=[MinLengthValidator(10),
@@ -179,18 +177,15 @@ post_delete.connect(delete_user, sender=Profile)  # ????????????????????????????
 
 class Address(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-
     lat = models.FloatField(null=True, default=35.811777)  # latitute
     lng = models.FloatField(null=True, default=50.905918)  # longitute
-
     province = models.CharField(max_length=50, null=True)
     city = models.CharField(max_length=50, null=True)
     mailing_address = models.TextField(max_length=2000, null=True)
     number = models.PositiveIntegerField(null=True)
     unit = models.PositiveIntegerField(null=True, blank=True)
-    mailing_code = models.CharField(max_length=10, null=True, validators=[MinLengthValidator(10),
-                                                                          validate_mailing_code])
-
+    mailing_code = models.CharField(max_length=10, null=True,
+                                    validators=[MinLengthValidator(10), validate_mailing_code])
     reciver = models.BooleanField(default=False)
     reciver_first_name = models.CharField(max_length=100, null=True)
     reciver_last_name = models.CharField(max_length=100, null=True)
@@ -205,20 +200,18 @@ class Comment(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
     object_id = models.PositiveIntegerField(null=True)
     content_object = GenericForeignKey('content_type', 'object_id')
-
     OFFER = (('Y', 'Yes'), ('N', 'No'), ('S', 'so-so'))
     offer = models.CharField(max_length=1, choices=OFFER, null=True, blank=True)
-    write_date = models.DateField(null=True)
+    write_date = models.DateField(null=True,auto_now=True)  # @@@@@@@@@@@@@@@
     title = models.CharField(max_length=100, null=True, blank=True)
     viewpoint = models.TextField(max_length=2000, null=True)
-    # strengths=models.TextField(max_length=1000,null=True,blank=True)
-    # weak_points=models.TextField(max_length=1000,null=True,blank=True)
     buyer = models.BooleanField(null=True, default=False)
     publish = models.BooleanField(null=True, default=False)
     STAR = (("1", "1"), ("2", "2"), ("3", "3"), ("4", "4"), ("5", "5"))
     star = models.CharField(max_length=1, choices=STAR, null=True, default="3")
     count_like = models.PositiveIntegerField(null=True, default=0)
     count_dislike = models.PositiveIntegerField(null=True, default=0)
+    # tt= ListField(null=True,blank=True)
 
     @property
     def most_liked(self):
@@ -230,8 +223,6 @@ class Comment(models.Model):
         j_date = jdatetime.date.fromgregorian(year=self.write_date.year, month=self.write_date.month,
                                               day=self.write_date.day)
         return str(j_date)
-
-    # tt= ListField(null=True,blank=True)
 
 
 class GoodBadPoint(models.Model):

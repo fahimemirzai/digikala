@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from .serializers import UserSerializers, BasketItemSerializer, BasketSerializer, ProfileSerializer, \
     EditProfileSerializer, UserSerializer2, AddressSerializer, AddAddressSerializer, CommentSerializer, \
     AddComment2Serializer, GoodBadPointSerializer, OrderSerializer, OrderItemSerializer, \
-    ReplyQuestionSerializer, ShowQuestionSerializer, DeliveryDateSerializer, ReturningBasketSerializer, \
+    ReplyQuestionSerializer, ShowQuestionSerializer, DeliveryDateSerializer1, ReturningBasketSerializer, \
     AddReturnItemSerializer, ReturnedBasketSerializer, CommentSerializer1, FavoritesItemSerializer
 
 from rest_framework.permissions import IsAuthenticated
@@ -32,15 +32,7 @@ from rest_framework.authtoken.models import Token
 import jdatetime
 
 
-@api_view(['POST'])
-@permission_classes((MustAnonymouse,))
-def register(request):
-    ser = UserSerializers(data=request.data)
-    if ser.is_valid():
-        ser.save()
-        return Response({'message': 'sabt name shoma anjam shod'})
-    else:
-        return Response(ser.errors)
+
 
 
 # @api_view(['POST'])
@@ -69,47 +61,76 @@ def register(request):
 #     else:
 #         return Response(ser.errors)
 
-"""
-@api_view(['GET'])
-@permission_classes((IsAuthenticated,))
-def ProfileView(request):
-   try:
-        user = User.objects.get(username=request.user)
-   except:
-        return Response({"ERROR": "WE DONT HAVE THIS USERNAME"})
-   else:
-        ser=UserSerializers(user)
-        return Response(ser.data)"""
-"""
 
-@api_view(['PUT'])
-@permission_classes((IsAuthenticated,))
-def change_password(request):
-    try:
-        old_password=request.data['old_password']
-        new_password=request.data['new_password']
-        repeat_new_password=request.data['repeat_new_password']
-    except:
-        return Response({"ERROR":"ERROR1"})
-    #import ipdb; ipdb.set_trace()
-    # old_password=set_password()
-    # hashed_pwd = make_password(old_password)
-    #check_password(password, hashed_pwd)
-    #######
-    #data = self.cleaned_data['old_password']
-    #enc_passsword=pbkdf2_sha256.encrypt(old_password,rounds=12000,salt_size=32)
-    ######
-    if check_password(old_password,request.user.password) :
-        if new_password==repeat_new_password:
-            hashed_pwd = make_password(new_password)
-            request.user.password=hashed_pwd
-            request.user.save()
-            return Response({'MESSAGE':"NEW PASSWORD "})
-        else:
-            return Response({"ERROR":"2 PASSWORD BAYAD SHABIH BASHAD"})
+@api_view(['POST'])
+@permission_classes((MustAnonymouse,))
+def register(request):
+    ser = UserSerializers(data=request.data)
+    if ser.is_valid():
+        ser.save()
+        return Response({'message': ' ثبت نام شما انجام شد '})
     else:
-        return Response({"ERROR":"OLD PASSWORD RA DOROST VARED KONID"})"""
+        return Response(ser.errors)
 
+
+@api_view(['POST'])
+@permission_classes((MustAnonymouse,))
+def login_register(request):
+    try:
+        mobile = str(request.data['mobile'])
+    except KeyError:
+        return Response({"error:""موبایل وارد نشده"})
+
+    if len(mobile) == 11 and mobile.isdigit() and mobile.startswith('09'):
+
+        rand = str(random.randrange(1000, 10000))
+        message = f' کد اعتباری سنجی شما : {rand}'
+        user, create = User.objects.get_or_create(username=mobile)
+        user_validation, create = ValidationCode.objects.get_or_create(user=user)
+        user_validation.validation_code = rand
+        user_validation.save()
+
+        main_api = 'https://raygansms.com/SendMessageWithUrl.ashx?'  # @@@@@@@@@@
+        url = main_api + urllib.parse.urlencode({'Username': '09123669277', 'Password': '5989231',
+                                                 'PhoneNumber': '50002910001080', 'MessageBody': message,
+                                                 'RecNumber': mobile,
+                                                 'Smsclass': '1'}) # $$$$$$$$$$
+
+        json_data = requests.get(url).json()  # $$$$$$$$$$
+
+        return Response({'message': 'کد اعتبارسنجی برای شما ارسال شد.ان را وارد کنید'})
+
+    else:
+        return Response({"error": "موبایل باید یک عدد ۱۱ رقمی و شروع شده با ۰۹ باشد."})
+
+
+@api_view(['POST'])
+@permission_classes((MustAnonymouse,))
+def confirm_code(request):
+    try:
+        mobile = str(request.data['mobile'])
+        code = str(request.data['code'])
+        user_code = ValidationCode.objects.get(user__username=mobile).validation_code
+        user = User.objects.get(username=mobile)
+    except KeyError:
+        return Response({"error": " موبایل یا کد وارد نشده. ان را وارد کنید   "})
+    except ValidationCode.DoesNotExist:  # @@@@@@@@@@
+        return Response({"error": "برای این یوزرنیم ولیدیشن کدی وجود ندارد"})
+
+    if user_code == code:
+        token, create = Token.objects.get_or_create(user=user) # $$$$$$$$$$
+        return Response({'Token': token.key})  # $$$$$$$$$$
+
+    else:
+        return Response({'error': 'کد وارد شده صحیح نمی باشد'})
+
+
+
+# def change_password(request):
+#     old_password = set_password()
+#     hashed_pwd = make_password(old_password)
+#     data = self.cleaned_data['old_password']
+#     enc_passsword = pbkdf2_sha256.encrypt(old_password, rounds=12000, salt_size=32)
 
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
@@ -118,18 +139,18 @@ def change_password(request):
         old_password = request.data['old_password']
         new_password = request.data['new_password']
         repeat_new_password = request.data['repeat_new_password']
-    except:
+    except KeyError:
         return Response({"error": " 'old_password' ya 'new_password' ya 'repeat_new_password' ra vared nakarid"})
 
-    if check_password(old_password, request.user.password):  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    if check_password(old_password, request.user.password):  # $$$$$$$$$$
         if new_password == repeat_new_password:
-            request.user.password = make_password(new_password)  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+            request.user.password = make_password(new_password)  # $$$$$$$$$$
             request.user.save()
-            return Response({'MESSAGE': "NEW PASSWORD CREATED "})
+            return Response({'message': "new password created "})
         else:
-            return Response({"ERROR": "2 PASSWORD BAYAD SHABIH BASHAD"})
+            return Response({"ERROR": "new_password va repeat_new_password  bayad yeksan bashand "})
     else:
-        return Response({"ERROR": "OLD PASSWORD RA DOROST VARED KONID"})
+        return Response({"error": "old_password ra dorost vared konid"})
 
 
 @api_view(['GET'])
@@ -189,14 +210,13 @@ def EditProfileView(request):
         """
 
 
-########################################################################
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def show_address(request):
     profile = Profile.objects.get(user=request.user)
     addresses = profile.address_set.all()
-    paginate = PageNumberPagination()  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-    pagination_address = paginate.paginate_queryset(addresses, request)  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    paginate = PageNumberPagination()  # $$$$$$$$$$
+    pagination_address = paginate.paginate_queryset(addresses, request)  # $$$$$$$$$$
     ser = AddressSerializer(pagination_address, many=True)
     return Response(ser.data)
 
@@ -205,7 +225,7 @@ def show_address(request):
 @permission_classes((IsAuthenticated,))
 def add_address(request):
     prf = Profile.objects.get(user=request.user)
-    ser = AddAddressSerializer(data=request.data)
+    ser = AddAddressSerializer(data=request.data)  # @@@@@@@@@@
     if ser.is_valid():
 
         ser.save(profile=prf)
@@ -214,22 +234,17 @@ def add_address(request):
         return Response(ser.errors)
 
 
-@api_view(['PUT', 'GET'])
+@api_view(['PUT'])
 @permission_classes((IsAuthenticated, IsOwner))
 def edit_address(request, pk):
     address = Address.objects.get(pk=pk)
-    if request.method == 'GET':
-        ser = AddAddressSerializer(address)
+    # ser=UpdateAddressSerializer(address,data=request.data) #اگر همه یفیلدها اجباری نبودن اینو جایگزین خط پایین کن
+    ser = AddAddressSerializer(address, data=request.data)
+    if ser.is_valid():
+        ser.save()
         return Response(ser.data)
-
-    elif request.method == 'PUT':
-        # ser=UpdateAddressSerializer(address,data=request.data) #اگر همه یفیلدها اجباری نبودن اینو جایگزین خط پایین کن
-        ser = AddAddressSerializer(address, data=request.data)
-        if ser.is_valid():
-            ser.save()
-            return Response(ser.data)
-        else:
-            return Response(ser.errors)
+    else:
+        return Response(ser.errors)  # @@@@@@@@@@
 
 
 @api_view(['DELETE'])
@@ -258,37 +273,30 @@ def add_basket_item(request):
     try:
         obj_id = request.data['obj_id']
         obj_type = request.data['obj_type']
-    except:
-        return Response({"ERROR:": "ID OR MODEL DOES NOT EXIST "})
+    except KeyError:
+        return Response({"error:": "obj_type OR obj_id DOES NOT EXIST "})
 
-    if isinstance(request.data['obj_id'], int) and isinstance(request.data['obj_type'], str):
-        obj_id = request.data['obj_id']
-        obj_type = request.data['obj_type']
-
+    if isinstance(obj_id, int) and isinstance(obj_type, str):  # @@@@@@@@@@@@@@@@@@@@
+        pass
     else:
         return Response({"ERROR": "OBJ_ID MUST BE INT ----AND----OBJ_TYPE MUST BE STRING"})
 
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     MODELS = ['Cellphone', 'Tablet', 'Laptop', 'Television']
     if obj_type in MODELS:
-        model = eval(obj_type)  # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        model = eval(obj_type)  # @@@@@@@@@@@@@@@@@@@@
     else:
-        return Response({"error:": "input model does not in MODELS"})
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        return Response({"error:": "input obj_type does not in MODELS"})
+
     try:
         obj = model.objects.get(pk=obj_id)
-    except:
+    except model.DoesNotExist:  # (model khas nist um ast) $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
         return Response({"ERROR:": "mahsouli ba in moshakhasat vojod nadarad"})
 
     if obj.stock <= 0:
         return Response({"ERROR": "OVER PRODUCT STOCK "})
-
-    # تا اینجا اغلب فقط چک کردن بود
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     basket, created = Basket.objects.get_or_create(user=request.user, status='active')
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     ct = ContentType.objects.get(model=obj_type.lower())
-    basket_item, created = basket.basketitem_set.get_or_create(content_type=ct, object_id=obj_id)
+    basket_item, created = basket.basketitem_set.get_or_create(content_type=ct, object_id=obj_id)  # @@@@@@@@@@@
     if basket_item.count >= obj.stock:
         return Response({"ERROR": "OVER PRODUCT STOCK "})
 
@@ -301,31 +309,25 @@ def add_basket_item(request):
     basket.total_discount += obj.discount
     basket.total_discount_price += (obj.price - obj.discount)
     basket.save()
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # obj.stock -= 1
-    # obj.save()  #??????????????????????????????????????????? این خط و خط بالاییش نمیدونم درست هست یا نه
-
-    # ser = BasketItemSerializer(basket_item)
-    # return Response(ser.data)
-
+    # obj.save()  #? این خط و خط بالاییش نمیدونم درست هست یا نه
     return Response({'message': "sabt shod"})
 
 
-@api_view(['PUT'])  # فکر کنم باید این رو بزارم put ؟؟
+@api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
 def reduce_basket_item(request):
     try:
         obj_id = request.data['obj_id']
         obj_type = request.data['obj_type']
-    except:
-        return Response({"ERROR:": "ID OR MODEL DOES NOT EXIST "})
+    except KeyError:
+        return Response({"ERROR:": "obj_id OR obj_type DOES NOT EXIST "})
 
-    if isinstance(request.data['obj_id'], int) and isinstance(request.data['obj_type'], str):
-        obj_id = request.data['obj_id']
-        obj_type = request.data['obj_type']
+    if isinstance(obj_id, int) and isinstance(obj_type, str):
+        pass
     else:
         return Response({"ERROR": "OBJ_ID MUST BE INT ----AND----OBJ_TYPE MUST BE STRING"})
-    # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
     MODELS = ['Cellphone', 'Tablet', 'Laptop', 'Television']
     if obj_type in MODELS:
         model = eval(obj_type)
@@ -334,49 +336,45 @@ def reduce_basket_item(request):
 
     try:
         obj = model.objects.get(pk=obj_id)
-    except:
+    except model.DoesNotExist:
         return Response({"ERROR :": "THIS PRODUCT DOES NOT EXIST"})
 
-    # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     try:
         basket = Basket.objects.get(user=request.user, status='active')
-    except:
+    except Basket.DoesNotExist:
         return Response({"ERROR:": "YOU DONT HAVE ANY BASKET"})
-    # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    ct = ContentType.objects.get(model=obj_type.lower())
     try:
-        ct = ContentType.objects.get(model=obj_type.lower())
         item = basket.basketitem_set.get(content_type=ct, object_id=obj_id)
-        # obj.stock += 1
-        # obj.save()
-
-        per_price = item.price / item.count
-        discount = item.discount / item.count
-        item.count -= 1
-        item.price -= per_price
-        item.discount -= discount
-        basket.total_price -= per_price
-        basket.total_discount -= discount
-        basket.total_discount_price = basket.total_price - basket.total_discount
-        basket.save()
-        item.save()
-
-        if item.count <= 0:
-            item.delete()
-            if basket.basketitem_set.count() <= 0:
-                basket.delete()
-            # ser=BasketItemSerializer(data=basket.basketitem_set.all(),many=True)
-            # return Response(ser.data)
-
-        return Response({'message': 'reduce from your basket'})
-    except:
+    except BasketItem.DoesNotExist:  # @@@@@@@@@@
         return Response({"ERROR:": "YOU DONT HAVE THIS ITEM IN YOUR BASKET"})
+    # obj.stock += 1
+    # obj.save()
+    per_price = item.price / item.count
+    discount = item.discount / item.count
+    item.count -= 1
+    item.price -= per_price
+    item.discount -= discount
+    basket.total_price -= per_price
+    basket.total_discount -= discount
+    basket.total_discount_price = basket.total_price - basket.total_discount
+    basket.save()
+    item.save()
+    if item.count <= 0:
+        item.delete()
+        if basket.basketitem_set.count() <= 0:
+            basket.delete()
+        # ser=BasketItemSerializer(data=basket.basketitem_set.all(),many=True)
+        # return Response(ser.data)
+    return Response({'message': 'reduced from your basket'})
 
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def show_basket(request):
     basket = Basket.objects.filter(status='active', user=request.user)
-    ser = BasketSerializer(basket, many=True, context={'request': request})
+    ser = BasketSerializer(basket, many=True, context={'request': request}) # 555555555555555555555555555555
     return Response(ser.data)
 
 
@@ -394,44 +392,33 @@ def show_favorites(request):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def add_reduce_favorites(request):
-    if request.method == 'POST':
-        try:
-            obj_id = request.data['obj_id']
-            obj_type = request.data['obj_type']
-        except:
-            return Response({"ERROR": "''obj_id' ya 'obj_type' vared nashode"})
-
-        if not (isinstance(obj_type, str) and isinstance(obj_id, int)):
-            return Response({"ERROR": "'OBJ_ID' MUST INT  AND 'OBJ_TYPE' MUST BE STR"})
-
-        MODELS = ['Cellphone', 'Tablet', 'Laptop', 'Television']
-        if obj_type in MODELS:
-            model = eval(obj_type)
-        else:
-            return Response({"ERROR": "OBJ_TYPE ISNT IN MODELS"})
-
-        try:
-            obj = model.objects.get(pk=obj_id)
-        except:
-            return Response({"ERROR": "WE DONT HAVE THIS PRODUCT"})
-
-        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        f_basket, created = Basket.objects.get_or_create(user=request.user, status='favorites')
-        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        try:
-            ct = ContentType.objects.get(model=obj_type.lower())
-            item = f_basket.basketitem_set.get(object_id=obj_id, content_type=ct)
-
-        except:
-            ct = ContentType.objects.get(model=obj_type.lower())
-            item = f_basket.basketitem_set.create(content_type=ct, object_id=obj_id)
-            item.count = 1
-            item.save()
-            return Response({"MESSAGE": "ITEM EZAFE SHOD"})
-
-        item.count = 0
-        item.delete()
-        return Response({"MESSAGE": "ITEM HAZF SHOD"})
+    try:
+        obj_id = request.data['obj_id']
+        obj_type = request.data['obj_type']
+    except KeyError:
+        return Response({"error": "obj_id ya obj_type vared nashode"})
+    if not (isinstance(obj_type, str)) or not (isinstance(obj_id, int)):
+        return Response({"ERROR": "'OBJ_ID' MUST INT  AND 'OBJ_TYPE' MUST BE STRING"})
+    MODELS = ['Cellphone', 'Tablet', 'Laptop', 'Television']
+    if obj_type in MODELS:
+        model = eval(obj_type)
+    else:
+        return Response({"ERROR": "OBJ_TYPE ISNT IN MODELS"})
+    try:
+        obj = model.objects.get(pk=obj_id)
+    except model.DoesNotExist:
+        return Response({"ERROR": "WE DONT HAVE THIS PRODUCT"})
+    f_basket, created = Basket.objects.get_or_create(user=request.user, status='favorites')
+    ct = ContentType.objects.get(model=obj_type.lower())
+    try:
+        item = f_basket.basketitem_set.get(object_id=obj_id, content_type=ct)
+    except BasketItem.DoesNotExist:
+        item = f_basket.basketitem_set.create(content_type=ct, object_id=obj_id)
+        item.count = 1
+        item.save()
+        return Response({"MESSAGE": "ITEM EZAFE SHOD"})
+    item.delete()
+    return Response({"MESSAGE": "ITEM HAZF SHOD"})
 
 
 @api_view(['GET'])
@@ -447,34 +434,7 @@ def my_comments(request):
 @api_view(['DELETE', 'GET'])
 @permission_classes((IsAuthenticated, Comment_Owner))
 def delete_comment(request, pk):
-    # if request.GET.get('obj_type') and request.GET.get('obj_id'):
-    #
-    #     obj_type=request.GET.get('obj_type')
-    #     obj_id=request.GET.get('obj_id')
-    #
-    # else:
-    #     return Response({"error":"'obj_id' ya 'obj_type' dorost vared nashode "})
-    #
-    # if not(isinstance(obj_type, str)) or not(obj_id.isdigit()):
-    #     return Response({"ERROR": "'OBJ_ID' MUST INT  AND 'OBJ_TYPE' MUST BE STR"})
-    #
-    # MODELS = ['Cellphone', 'Tablet', 'Laptop', 'Television']
-    # if obj_type in MODELS:
-    #     model = eval(obj_type)
-    # else:
-    #     return Response({"ERROR": "OBJ_TYPE ISNT IN MODELS"})
-    #
-    # try:
-    #     obj = model.objects.get(pk=int(obj_id))
-    # except:
-    #     return Response({"ERROR": "WE DONT HAVE THIS PRODUCT"})
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # obj_id=request.GET.get("obj_id")
-    # obj_type=request.GET.get("obj_type")
-    # # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # ct=ContentType.objects.get(model=obj_type.lower())
     comment = Comment.objects.get(user=request.user, pk=pk)
-
     if request.method == 'GET':
         ser = CommentSerializer(comment)
         return Response(ser.data)
@@ -484,48 +444,9 @@ def delete_comment(request, pk):
         return Response({"message": "delete shod"})
 
 
-# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# ct=ContentType.objects.get(model=obj_type.lower())
-# cm=Comment.objects.filter(content_type=ct,object_id=obj_id)
-# ser=ComentSerializer(cm,many=True)
-# if ser.is_valid:
-#     return Response(ser.data)
-
-# ser=AddCommentSerializer(data=request.data)
-# if ser.is_valid():
-#     ser.save()
-#     return Response(ser.data)
-#     pass##########################################نیاز به تکمیل شدن
-# else:
-#     return Response(ser.errors)
-
-
 @api_view(['PUT', 'GET'])
 @permission_classes((IsAuthenticated, Comment_Owner, PublishPermission))
 def update_comment(request, pk):
-    # import ipdb; ipdb.set_trace()
-    # try:
-    #     obj_type=request.Get.get('obj_type')
-    #     obj_id=request.Get.get('obj_id')
-    # except:
-    #     return Response({"ERROR": "''obj_id' ya 'obj_type' vared nashode"})
-    #
-    # if not(isinstance(obj_type, str)) or not(obj_id.isdigit()):
-    #     return Response({"ERROR": "'OBJ_ID' MUST INT  AND 'OBJ_TYPE' MUST BE STR"})
-    #
-    # MODELS = ['Cellphone', 'Tablet', 'Laptop', 'Television']
-    # if obj_type in MODELS:
-    #     model = eval(obj_type)
-    # else:
-    #     return Response({"ERROR": "OBJ_TYPE ISNT IN MODELS"})
-    # چون قبلا کامنت گذاشته فرد پس قطعا چنین موردی وجود داره و نیاز نیست دوباره چک کنیم ببینیم چنین کالایی داریم یا نه و ....پس من بالایی ها رو کامنت می کنم
-
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # obj_id = request.GET["obj_id"]
-    # obj_type = request.GET["obj_type"]
-    # ct=ContentType.objects.get(model=obj_type.lower())
-    # comment=Comment.objects.get(user=request.user,content_type=ct,object_id=int(obj_id),pk=pk)
-
     comment = Comment.objects.get(pk=pk)
     if request.method == 'GET':
         ser = CommentSerializer(comment)
@@ -556,7 +477,7 @@ def add_comment(request):
     obj_type = request.GET.get("obj_type")
     ct = ContentType.objects.get(model=obj_type.lower())
     basket_item = BasketItem.objects.filter(content_type=ct, object_id=int(obj_id),
-                                            basket__user=request.user, basket__delivered=True)  # @@@@@@@@@@@@@@@@@@
+                                            basket__user=request.user, basket__delivered=True)  # @@@@@@@@@@@
 
     if bool(basket_item) == True:
         buyer = True
@@ -568,7 +489,6 @@ def add_comment(request):
         ser.save(user=request.user, content_type=ct, object_id=int(obj_id), buyer=buyer)
         # return Response(ser.data)
         return Response({"MESAGE": "SAVE SHOD"})
-
     else:
         return Response(ser.errors)
 
@@ -578,16 +498,16 @@ def add_comment(request):
 def like_comment(request, pk):
     try:
         lk = request.data['like']
+    except KeyError:
+        return Response({"error": "like ra vared konid"})
+    if lk == "1" or lk == "-1":
         lk = int(lk)
-    except:
+    else:
         return Response({"error": "like must be int-----like -1 ya 1 ast "})
-
     cmnt = Comment.objects.get(pk=pk)
-
     try:
         like = Like.objects.get(user=request.user, comment=cmnt)
-
-    except Like.DoesNotExist:  ########################################
+    except Like.DoesNotExist:
         if lk == -1:
             Like.objects.create(user=request.user, comment=cmnt, dislike=True)
             cmnt.count_dislike += 1
@@ -598,8 +518,6 @@ def like_comment(request, pk):
             cmnt.count_like += 1
             cmnt.save()
             return Response({"message": "sabt shod"})
-        else:
-            return Response({"error": "like must only 1 or -1"})
 
     if lk == -1:
         if like.dislike == True:
@@ -607,7 +525,6 @@ def like_comment(request, pk):
             cmnt.save()
             like.delete()
             return Response({'message': 'sabt shod'})
-
         else:
             like.dislike = True
             like.like = False
@@ -633,95 +550,68 @@ def like_comment(request, pk):
             cmnt.save()
             return Response({'message': 'sabt shod'})
 
-    else:
-        return Response({"ERROR": "DADEHA MOTABAR NEMIIBASHAD ----LIKE MUST -1 OR 1 "})
-
 
 @api_view(['GET'])
 def show_comment(request):
-    if request.GET.get('obj_type') and request.GET.get('obj_id'):
+    if request.GET.get('obj_type') and request.GET.get('obj_id'):  # @@@@@@@@@@@@@@@
         obj_type = request.GET.get('obj_type')
         obj_id = request.GET.get('obj_id')
     else:
         return Response({"error": "'obj_id' ya 'obj_type'  vared nashode "})
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     MODELS = ['Cellphone', 'Tablet', 'Laptop', 'Television']
     if obj_type in MODELS:
         model = eval(obj_type)
     else:
         return Response({"error": "obj_type dar MODELS vojod nadarad"})
-
     try:
         product = model.objects.get(pk=obj_id)
-    except:
+    except model.DoesNotExist:
         return Response({"error": "in mahsol vojod nadarad"})
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
     ct = ContentType.objects.get(model=obj_type.lower())
     if request.GET.get('order') == 'newest-comment':
-        cm = Comment.objects.filter(content_type=ct, object_id=int(obj_id)).order_by('-write_date')
+        cm = Comment.objects.filter(content_type=ct, object_id=int(obj_id)).order_by('-write_date')  # @@@@@@@@@@@@@
     elif request.GET.get('order') == 'most-liked':
         cm = Comment.objects.filter(content_type=ct, object_id=obj_id)
-        cm = sorted(cm, key=lambda i: i.most_liked, reverse=True)  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$property$$$$$$$$$$$$$$$$$$$$$$$$====cm=sorted(cm, key=lambda cm: -cm.most_liked)
-
+        cm = sorted(cm, key=lambda i: i.most_liked,
+                    reverse=True)  # $$$$$$$$$$$$$$property$$$$$$$$====cm=sorted(cm, key=lambda cm: -cm.most_liked)
     elif request.GET.get('order') == 'buyers':  # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         cm1 = Comment.objects.filter(content_type=ct, object_id=obj_id, buyer=True)
         cm2 = Comment.objects.filter(content_type=ct, object_id=obj_id, buyer=False)
-        cm = cm1 | cm2
-
+        cm = cm1 | cm2  # @@@@@@@@@@@@@
     else:
         return Response({"error": "order ra moshakhas konid"})
-
-    ser = CommentSerializer1(product, context={'comments': cm, 'request': request})  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$خیلی خیلی مهم توجه کن خوب--> خود محصول و کامنت هاش
+    ser = CommentSerializer1(product, context={'comments': cm,
+                                               'request': request})  # $$$$$$$$$$$$$$$$$$$$$$$$$خیلی خیلی مهم توجه کن خوب--> خود محصول و کامنت هاش
     return Response(ser.data)
 
 
-#
-# @api_view(['GET'])
-# @permission_classes((IsAuthenticated,))
+
 # def show_orders(request):
-#     basket=Basket.objects.filter(user=request.user)
-#     if request.GET.get('type'):
-#         type=request.GET.get('type')
-#         status=['canceled','deliverd','current']
-#
-#         if not(type in status):
-#             return Response({"ERROR":"STATUS RA DOROST VARED KONID"})
-#
 #         elif  type == 'current':
 #             order1 = Basket.objects.filter(status='pardakht').order_by('-order_registration_date')
 #             order2 = Basket.objects.filter(status='pardakht-shod').order_by('-order_registration_date')
-#             order = order1 | order2  # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-#
-#         else:
-#             order = Basket.objects.filter(user=request.user, status=type).order_by('-order_registration_date')
-#
-#     else:
-#         order=Basket.objects.filter(user=request.user).exclude(status='active').\
-#             exclude(status='favorites').order_by('-order_registration_date')[0:10] #@@@@@@@@@@@@@@@@@@@@
-#
-#     ser=OrderSerializer(order,many=True)
-#     return Response(ser.data)
-
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def show_orders(request):
     try:
-        type = request.GET['type']  # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    except:
+        type = request.GET['type']  # @@@@@@@@@@@@
+    except KeyError:
+        # import ipdb; ipdb.set_trace()
         order = Basket.objects.filter(user=request.user).exclude(status='active').exclude(status='favorites').order_by(
-            'order_registration_date')[0:10]  # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            'order_registration_date')[0:10]  # @@@@@@@@@@@@@@@@@@@
         paginate = PageNumberPagination()
-        paginate.page_size = 3
-        pagination_order = paginate.paginate_queryset(order, request)
+        paginate.page_size = 3  # @@@@@@@@@@@@@@@@@@@
+        pagination_order = paginate.paginate_queryset(order, request)  # @@@@@@@@@@@@@@@@@@@@@@
         ser = OrderSerializer(pagination_order, many=True)
         return Response(ser.data)
 
     if type == 'current':
         order1 = Basket.objects.filter(user=request.user, status='pardakht')
         order2 = Basket.objects.filter(user=request.user, status='pardakht-shod')
-        order = order1 | order2  # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        order = order1 | order2  # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         order = order.exclude(delivered=True)  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
         paginate = PageNumberPagination()
         paginate.page_size = 3
@@ -753,7 +643,7 @@ def show_orders(request):
         ser = ReturnedBasketSerializer(pagination_order, many=True)
         return Response(ser.data)
     else:
-        return Response({'error type must be in ["current","delivered","canceled","returned"]'})
+        return Response({'error': ' type must be in [current,delivered,canceled,returned]'})
 
 
 @api_view(['GET'])
@@ -961,7 +851,7 @@ def add_delivery_date(request, pk):
         basket.deliverydate = None  # @@@@@@@@@@@@@@@@@@@@@@@@None
         basket.save()
 
-    ser = DeliveryDateSerializer(time, data={date: date, time_range: time_range})  # @@@@@@@@@@@@@@@@@@@@@@@@@@@
+    ser = DeliveryDateSerializer1(time, data={date: date, time_range: time_range})  # @@@@@@@@@@@@@@@@@@@@@@@@@@@
     if ser.is_valid():
 
         ser.save()
@@ -1328,43 +1218,3 @@ def edite_returning_items(request, pk):
 #
 # return Response({'hh':'aa'})
 
-
-@api_view(['POST'])
-@permission_classes((MustAnonymouse,))
-def login_register(request):
-    mobile = str(request.data['mobile'])
-    rand = str(random.randrange(1000, 10000))
-    message = f' کد اعتباری سنجی شما : {rand}'
-    user, create = User.objects.get_or_create(username=mobile)
-    user_validation, create = ValidationCode.objects.get_or_create(user=user)
-    user_validation.validation_code = rand
-    user_validation.save()
-
-    main_api = 'https://raygansms.com/SendMessageWithUrl.ashx?'  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-    url = main_api + urllib.parse.urlencode({'Username': '09123669277', 'Password': '5989231',
-                                             'PhoneNumber': '50002910001080', 'MessageBody': message,
-                                             'RecNumber': mobile,
-                                             'Smsclass': '1'})  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
-    json_data = requests.get(url).json()  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
-    return Response({'message': 'کد اعتبارسنجی برای شما ارسال شد.ان را وارد کنید'})
-
-
-@api_view(['POST'])
-@permission_classes((MustAnonymouse,))
-def confirm_code(request):
-    try:
-        mobile = str(request.data['mobile'])
-        code = str(request.data['code'])
-        user_code = ValidationCode.objects.get(user__username=mobile).validation_code
-        user = User.objects.get(username=mobile)
-    except:
-        return Response({"ERROR": "mobile or code vared nashode"})
-
-    if user_code == code:
-        token, create = Token.objects.get_or_create(user=user)
-        return Response({'Token': token.key})
-
-    else:
-        return Response({'error': 'error'})

@@ -757,7 +757,7 @@ class AddComment(graphene.Mutation):
     comment=graphene.Field(CommentType)
 
 
-    @permissions_checker([IsAuthenticated])
+    # @permissions_checker([IsAuthenticated])
     def mutate(self,info,obj_id,obj_type,viewpoint,good_points=None,bad_points=None,offer=None,star=None,title=None):
         MODELS = ['Cellphone', 'Tablet', 'Laptop', 'Television']
         if not (obj_type in MODELS):

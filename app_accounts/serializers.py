@@ -9,50 +9,51 @@ import datetime
 # from django.core.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 
-class UserSerializers(serializers.ModelSerializer):
-    # password = serializers.CharField(write_only=True)
-    # username=serializers.CharField(max_length=11)# براش هیچ متدی ننوشتم مشکلی هم نداشت
-    """
-     token = serializers.SerializerMethodField()# ????????????????????????????????????????????
-     def get_token(self, obj, *args, **kwargs):
-        token, create = Token.objects.get_or_create(user=obj)
-        return token.key
-    """
+# # class UserSerializers(serializers.ModelSerializer):
+# #     # password = serializers.CharField(write_only=True)
+# #     # username=serializers.CharField(max_length=11)# براش هیچ متدی ننوشتم مشکلی هم نداشت
+# #     """
+# #      token = serializers.SerializerMethodField()# ????????????????????????????????????????????
+# #      def get_token(self, obj, *args, **kwargs):
+# #         token, create = Token.objects.get_or_create(user=obj)
+# #         return token.key
+#     """
+#     # """
+#     #       def update(self,instance,validated_data):
+#     #       old_username=instance.username
+#     #       old_password=instance.password
+#     #       obj=super().update(instance,alidated_data)#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+#     #       obj.set_username=old_username
+#     #       obj.set_password=old_password
+#     #       obj.save()
+#     #       return obj"""
 
-    def validate(self, value):#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-        username = value['username']#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-        if len(username) == 11 and username.isdigit() and username.startswith('09'):
+
+class UserSerializers(serializers.ModelSerializer):
+    # مدل دیگر نوشتن ولیدیت پایین
+    # def validate(self, value):    # 222222222222222222222222222222 (*)
+    #     username = value['username']
+    #     if len(username) == 11 and username.isdigit() and username.startswith('09'):
+    #         return value
+    #     else:
+    #         raise serializers.ValidationError(" unvalid  content error-->must be 11 digit character")
+
+    def validate_username(self, value):  # 222222222222222222222222222222 (*)
+        if len(value) == 11 and value.isdigit() and value.startswith('09'):
             return value
         else:
-            raise serializers.ValidationError("unvalid  content error-->must be 11 digit character") #@@@@@@@@@@@@@@@@@@@@@
+            raise serializers.ValidationError("unvalid  content error-->must be 11 digit character")
 
-
-    def create(self, validated_data):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        user = super().create(validated_data)#@@@@@@@@@@@@@@@@@@@@@@@
-        user.set_password(validated_data['password'])#@@@@@@@@@@@@@@@@@@@@@@@
+    def create(self, validated_data):  # 555555555555555555555555555555(*)
+        user = super().create(validated_data)
+        user.set_password(validated_data['password'])
         user.save()
-        return user #@@@@@@@@@@@@@@@@@@@@@@@
-
-    """
-          def update(self,instance,validated_data):
-          old_username=instance.username
-          old_password=instance.password
-          obj=super().update(instance,alidated_data)#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-          obj.set_username=old_username
-          obj.set_password=old_password
-          obj.save()
-          return obj
-    """
+        return user
 
     class Meta:
         model = User
         fields = ('username', 'password')
         extra_kwargs = {'password': {'required': True}, 'username': {'required': True}}
-
-
-
-
-
 
 
 """
@@ -108,108 +109,108 @@ class EditProfileSerializer(serializers.ModelSerializer):
                       'newsletter_receive':{'required':True}}
 
 
-
 class FavoritesItemSerializer(serializers.ModelSerializer):
-    price=serializers.SerializerMethodField()
-    name=serializers.SerializerMethodField()
-    image_url=serializers.SerializerMethodField()
-    product_id=serializers.SerializerMethodField()
-    product_model=serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField()
+    product_id = serializers.SerializerMethodField()
+    product_model = serializers.SerializerMethodField()
 
-    def get_price(self,obj):
-        return  obj.content_object.price
+    def get_price(self, obj):
+        return obj.content_object.price
 
-    def get_name(self,obj):
+    def get_name(self, obj):
         return obj.content_object.name
 
-    def get_image_url(self,obj):
-
-        if obj.content_object.photo.first():#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-            return obj.content_object.photo.first().image_url  #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    def get_image_url(self, obj):
+        if obj.content_object.photo.first():  # $$$$$$$$$$$$$$$
+            return obj.content_object.photo.first().image_url  # $$$$$$$$$$$$$$$
         else:
-            return None#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            return None
 
-
-    def get_product_id(self,obj):
+    def get_product_id(self, obj):
         return obj.object_id
 
-    def get_product_model(self,obj):
+    def get_product_model(self, obj):
         return str(obj.content_type)
 
-
     class Meta:
-        model=BasketItem
-        fields=('price','name','image_url','product_model','product_id')
+        model = BasketItem
+        fields = ('price', 'name', 'image_url', 'product_model', 'product_id')
 
 
 class BasketItemSerializer(serializers.ModelSerializer):
     item = serializers.SerializerMethodField()
     price_one_item = serializers.SerializerMethodField()
-    image=serializers.SerializerMethodField()
-    model=serializers.SerializerMethodField()
-    product_id=serializers.SerializerMethodField()
-    product_model=serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+    model = serializers.SerializerMethodField()
+    product_id = serializers.SerializerMethodField()
+    product_model = serializers.SerializerMethodField()
 
-    def get_image(self,obj):
-        product_item=obj.content_object
-        image=Photo.objects.filter(content_type=obj.content_type,object_id=obj.object_id).first()#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        if image:#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    def get_image(self, obj):
+        image = Photo.objects.filter(content_type=obj.content_type,
+                                     object_id=obj.object_id).first()  #444444444444444444444444444444
+        if image:  #444444444444444444444444444444
             return image.image_url
         else:
             return None
 
-
     def get_item(self, obj, *args, **kwargs):
-        return obj.content_object.name  #@@@@@@@@@@@@@@@@@@@@@@@
+        return obj.content_object.name  # 222222222222222222222222222222
 
     def get_price_one_item(self, obj, *args, **kwargs):
-        return (obj.price -obj.discount) /obj.count #@@@@@@@@@@@@@@@@@@@@@@@
+        if obj.count >= 0:
+            return (obj.price - obj.discount) / obj.count
+        else:
+            return None
 
-    def get_model(self,obj):
-        return str(ContentType.objects.get_for_model(obj))
-    def get_product_id(self,obj):
+    def get_model(self, obj):
+        return str(ContentType.objects.get_for_model(obj))  # 444444444444444444444444444444
+
+    def get_product_id(self, obj):
         return obj.object_id
 
-    def get_product_model(self,obj):
+    def get_product_model(self, obj):
         return str(obj.content_type)
 
     class Meta:
         model = BasketItem
-        fields = ['item','image','count','content_type', 'price_one_item','price','discount',
-                  'discount_price','id','model','product_id','product_model']
-        #depth = 1
+        fields = ['item', 'image', 'count', 'content_type', 'price_one_item', 'price', 'discount',
+                  'discount_price', 'id', 'model', 'product_id', 'product_model']
+        # depth = 1
 
 
 class BasketSerializer(serializers.ModelSerializer):
-    commodity_count=serializers.SerializerMethodField()#فقط خواندنی است
+    commodity_count = serializers.SerializerMethodField()  # فقط خواندنی است
     item_list = serializers.SerializerMethodField()
-    total_discount_persent=serializers.SerializerMethodField()
+    total_discount_persent = serializers.SerializerMethodField()
 
-    def get_commodity_count(self,obj):
-        basket_items=obj.basketitem_set.all()
-        count=0
+    def get_commodity_count(self, obj):
+        basket_items = obj.basketitem_set.all()
+        count = 0
         for item in basket_items:
-            count+=item.count
+            count += item.count
         return count
 
-    def get_item_list(self,obj): #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    def get_item_list(self, obj):  # 222222222222222222222222222222
         items = obj.basketitem_set.all()
-        request = self.context['request']
-
-        paginator=PageNumberPagination()
-        pagination_basketitem=paginator.paginate_queryset(items,request)#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        request = self.context['request']  # 444444444444444444444444444444
+        paginator = PageNumberPagination()
+        pagination_basketitem = paginator.paginate_queryset(items, request)  # 555555555555555555555555555555
         ser = BasketItemSerializer(pagination_basketitem, many=True)
-        return ser.data #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        return ser.data  # 444444444444444444444444444444
 
-    def get_total_discount_persent(self,obj):
-        return obj.total_discount/obj.total_price
-
+    def get_total_discount_persent(self, obj):
+        if obj.total_price > 0:
+            return (obj.total_discount / obj.total_price) * 100
+        else:
+            return None
 
     class Meta:
         model = Basket
         # fields = '__all__'
-        fields = ('commodity_count','total_price','total_discount','total_discount_persent',
-                  'total_discount_price','shipping_cost','payable_amount','item_list')
+        fields = ('commodity_count', 'total_price', 'total_discount', 'total_discount_persent',
+                  'total_discount_price', 'shipping_cost', 'payable_amount', 'item_list')
 
 #
 # class BasketFavoriteSerializer(serializers.ModelSerializer):
@@ -228,74 +229,55 @@ class BasketSerializer(serializers.ModelSerializer):
 #         fields=('price','item')
 
 
-
 class AddressSerializer(serializers.ModelSerializer):
-    reciver_full_name=serializers.SerializerMethodField()
-    def get_reciver_full_name(self,obj):
+    reciver_full_name = serializers.SerializerMethodField()
+
+    def get_reciver_full_name(self, obj):
         # if obj.reciver==True:
-        #   return obj.profile.user.first_name+" "+obj.profile.user.last_name #@@@@@@@@@@@@@@@@@@@@@@@@@@
+        #   return obj.profile.user.first_name+" "+obj.profile.user.last_name # 222222222222222222222222222222
         return obj.reciver_first_name + "  " + obj.reciver_last_name
 
-    # def get_profile(self,obj):
-    #     #profile=obj.objects.get(profile__user==request.user)
-    #     #Profile.objects.get()
-    #     #return obj.profile.user.id
-    #     return obj.profile_id #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     class Meta:
-        model=Address
+        model = Address
         # fields='__all__'
-        # #exclude = ['profile']
-        fields=('province','city','mailing_address','mailing_code','reciver_full_name','reciver_cellphone')
-
+        # exclude = ['profile']
+        fields = ('province', 'city', 'mailing_address', 'mailing_code', 'reciver_full_name', 'reciver_cellphone')
 
 
 class AddAddressSerializer(serializers.ModelSerializer):
-     class Meta:
-         model=Address
-
-         exclude=['profile','id']
-         extra_kwargs = {'lat': { 'required': True},'lng': { 'required': True},
-                         'province':{ 'required': True},'city':{ 'required': True},
-                         'mailing_address':{ 'required': True},'number':{ 'required': True},
-                         'mailing_code': {'required': True},'reciver':{ 'required': True},
-                         'reciver_first_name':{ 'required': True},'reciver_last_name':{ 'required': True},
-                         'reciver_national_code':{ 'required': True},
-                         'reciver_cellphone': {'required': True}
-                         }#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
-
-
-
-#
-# class UpdateAddressSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Address
-#         exclude = ['profile', 'id']
-#         extra_kwargs = {'lat': {'required': True}, 'lng': {'required': True},
-#                         'reciver': {'required': True},'reciver_first_name': {'required': True},
-#                         'reciver_last_name': {'required': True},'reciver_national_code': {'required': True}}
-
-
-
-
-
+    class Meta:
+        model = Address
+        exclude = ['profile', 'id']
+        extra_kwargs = {'lat': {'required': True}, 'lng': {'required': True}, 'province': {'required': True},
+                        'city': {'required': True}, 'mailing_address': {'required': True},
+                        'number': {'required': True}, 'mailing_code': {'required': True},
+                        'reciver': {'required': True}, 'reciver_first_name': {'required': True},
+                        'reciver_last_name': {'required': True}, 'reciver_national_code': {'required': True},
+                        'reciver_cellphone': {'required': True}
+                        }  # 333333333333333333333333333333
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    user=serializers.SerializerMethodField()
-    good_point=serializers.SerializerMethodField()
-    bad_point=serializers.SerializerMethodField()
-    image_url=serializers.SerializerMethodField()
-    product_id=serializers.SerializerMethodField()
-    write_date_jalali=serializers.SerializerMethodField()
+    user = serializers.SerializerMethodField()
+    good_point = serializers.SerializerMethodField()
+    bad_point = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField()
+    product_id = serializers.SerializerMethodField()
+    product_model = serializers.SerializerMethodField()
+    write_date_jalali = serializers.SerializerMethodField()
 
-    # def get_product_item(self,obj):
-    #     return obj.content_object.name
+    def get_user(self, obj):
+        user = obj.user.first_name
+        if bool(user):
+            return user
+        else:
+            return ("digikala user-کاربر دیجیکالا")
 
-    def get_good_point(self,obj):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        items=obj.goodbadpoint_set.filter(point='good')
-        text=''
+    def get_good_point(self, obj):  # @@@@@@@@@@@@@@@
+        items = obj.goodbadpoint_set.filter(point='good')
+        text = ''
         for point in items:
-            text+=point.item+" , "
+            text += point.item + " , "
         return text
 
     def get_bad_point(self, obj):
@@ -305,199 +287,162 @@ class CommentSerializer(serializers.ModelSerializer):
             text += point.item + ", "
         return text
 
-
-    def get_user(self,obj):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        user= obj.user.first_name
-        if bool(user):
-            return user
-        else:
-            return ("digikala user=کاربر دیجیکالا")
-
-    def get_image_url(self,obj):
-        image=obj.content_object.photo.first()#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    def get_image_url(self, obj):
+        image = obj.content_object.photo.first()
         if image:
-            return obj.content_object.photo.first().image_url#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+            return obj.content_object.photo.first().image_url  # $$$$$$$$$$$$
         else:
-            return None
-    def get_product_id(self,obj):
+            return None  # @@@@@@@@@@@@@@@
+
+    def get_product_id(self, obj):
         return obj.object_id
 
-    def get_product_model(self,obj):
+    def get_product_model(self, obj):
         return str(obj.content_type)
 
-    def get_write_date_jalali(self,obj):
+    def get_write_date_jalali(self, obj):  # @@@@@@@@@@@@@@@
         return obj.write_date_jalali
 
     class Meta:
-        model=Comment
+        model = Comment
         # fields=('title','viewpoint','strengths','weak_points','user','write_date','buyer')
-        exclude = ['id','content_type','object_id']
+        exclude = ['id', 'content_type', 'object_id']
 
 
+class CommentSerializer1(serializers.Serializer):  # خیلی خیلی مهههم کلش$$$$$$$$$$$$$$$$$
+    product_item = serializers.SerializerMethodField()
+    avg_star = serializers.SerializerMethodField()
+    number_of_voter = serializers.SerializerMethodField()
+    comments = serializers.SerializerMethodField()
 
-class CommentSerializer1(serializers.Serializer):#خیلی خیلی مهههم کلش @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    product_item=serializers.SerializerMethodField()
-    avg_star=serializers.SerializerMethodField()
-    number_of_voter=serializers.SerializerMethodField()
-    comments=serializers.SerializerMethodField()
+    def get_product_item(self, obj):
+        return obj.name
 
-    def get_avg_star(self,obj):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        comments=obj.comments.all() #@@@@@@@@@@@@@@@@@@
-        count=comments.count()
-        if count>0 :
+    def get_avg_star(self, obj):  # $$$$$$$$$$$$$$$
+        comments = obj.comments.all()  # $$$$$$$$$$$$$$$
+        count = comments.count()  # @@@@@@@@@@@@@@@@@@@@@
+        if count > 0:
             sum = 0
             for cm in comments:
                 sum += int(cm.star)  # @@@@@@@@@@@@@@@@@@@@@
-            return sum/count
+            return sum / count
         else:
             return 0
 
-    def get_number_of_voter(self,obj):
-        count=obj.comments.all().count()
+    def get_number_of_voter(self, obj):
+        count = obj.comments.all().count()
         return count
 
-
-    def get_product_item(self,obj):
-        return obj.name
-
-    def get_comments(self,obj):
-        comments=self.context['comments'] #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        request=self.context['request']
-
-        paginator = PageNumberPagination()#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-        paginator.page_size = 3#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-        pagination_comments = paginator.paginate_queryset(comments,request)#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
-        ser=CommentSerializer(pagination_comments,many=True)
+    def get_comments(self, obj):  # @@@@@@@@@@@@@@@@@@@@@
+        comments = self.context['comments']  # @@@@@@@@@@@@@@@@@@@@@
+        request = self.context['request']
+        paginator = PageNumberPagination()  # @@@@@@@@@@@@@@@@@@@@@
+        paginator.page_size = 3  # @@@@@@@@@@@@@@@@@@@@@
+        pagination_comments = paginator.paginate_queryset(comments, request)
+        ser = CommentSerializer(pagination_comments, many=True)
         return ser.data
 
 
-
-
-
 class GoodBadPointSerializer(serializers.ModelSerializer):
-    item=serializers.CharField(max_length=2000,required=True)
-    point= serializers.CharField(max_length=2000, required=True)
+    item = serializers.CharField(max_length=2000, required=True)
+    point = serializers.CharField(max_length=10, required=True)
 
-    # def create(self,validated_data):
-    #     # import ipdb; ipdb.set_trace()
-    #     obj=super().create(validated_data)
     class Meta:
-        model=GoodBadPoint
-        fields=['point','item']
+        model = GoodBadPoint
+        fields = ['point', 'item']
         # extra_kwargs={'item':{'rquired':True},'point':{'rquired':True}}
 
 
 class AddComment2Serializer(serializers.ModelSerializer):
-    good_bad_points=GoodBadPointSerializer(many=True,required=False) #خیییلیی مهم @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    good_bad_points = GoodBadPointSerializer(many=True, required=False)  # خیییلیی مهم $$$$$$$$$$$$$$$$$$$$$$
 
-    def validate_offer(self,value):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        # import ipdb; ipdb.set_trace()
-        buyer=self.context['buyer']
-        if buyer==True:
-            return value #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    def validate_offer(self, value):  # @@@@@@@@@@@
+        buyer = self.context['buyer']
+        if buyer == True:
+            return value  # @@@@@@@@@@@@
         else:
             return None
 
-
-    def create(self,validated_data): #مههههههههههههم کلش $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
+    def create(self, validated_data):  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ keili mohem
+        # "good_bad_points":[{"point":"bad","item":"bbbbbbbb"},{"point":"good","item":"gggggggg"} ]
         try:
-            points=validated_data.pop('good_bad_points') #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-            ser=GoodBadPointSerializer(data=points,many=True)#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
-            if ser.is_valid():
-                comment = Comment.objects.create(**validated_data, write_date=datetime.date.today())  # @@@@@@@@@@@@@@@@
-                ser.save(comment=comment) #به ازای هرکد. یک comment==comment@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-                return comment #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-            else:
-                 return ser.errors #@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-        except:
-            comment = Comment.objects.create(**validated_data, write_date=datetime.date.today())#@@@@@@@@@@@@@@@@@
+            points = validated_data.pop('good_bad_points')  # $$$$$$$$$$$$$
+        except KeyError:
+            comment = Comment.objects.create(**validated_data, write_date=datetime.date.today())  # @@@@@@@@@@
             return comment
 
+        ser = GoodBadPointSerializer(data=points, many=True)  # $$$$$$$$$$$$$$$$$$$
+        if ser.is_valid():
+            comment = Comment.objects.create(**validated_data, write_date=datetime.date.today())
+            ser.save(comment=comment)  # به ازای هرکد. یک comment==comment$$$$$$$$$$$$$$
+            return comment  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        else:
+            return ser.errors  # @@@@@@@@@@@@@@@
 
-    def update(self,obj, validated_data):
+    def update(self, obj, validated_data):  # $$$$$$$$$$$$$$$$$$$$$$$$$ keili mohem
         try:
-
-            points = validated_data.pop('good_bad_points')#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-            good_bad_points=GoodBadPoint.objects.filter(comment=obj)
-            for i in good_bad_points:
-                i.delete()
-
-
-            # if bool(points):
-            #     for i in points:
-            #         # import ipdb; ipdb.set_trace()
-            #         if (i.get('point') in ['bad','good']) and i.get('item'):
-            #             pass
-            #
-            #         else:
-            #             raise serializers.ValidationError(" point or item dorost vared nashode")
-            #
-            #     for i in points:
-            #            GoodBadPoint.objects.create(point=i.get('point'),item=i.get('item'))
-            #     return instance
-            #
-            #
-            # else:
-            #     return instance
-
-
-            ser = GoodBadPointSerializer(data=points, many=True)
-            if ser.is_valid():
-                ser.save(comment=obj)
-                obj.viewpoint = validated_data.get('viewpoint', obj.viewpoint)
-                obj.star = validated_data.get('star', obj.star)
-                obj.title = validated_data.get('title', obj.title)
-                obj.offer = validated_data.get('offer', obj.offer)
-                obj.save()
-
-                return obj
-            else:
-                return ser.errors
-
-        except:
+            points = validated_data.pop('good_bad_points')  # $$$$$$$$$$
+        except KeyError:
             good_bad_points = GoodBadPoint.objects.filter(comment=obj)
             for i in good_bad_points:
                 i.delete()
-            # obj.viewpoint = validated_data.get('viewpoint', obj.viewpoint)
-            obj.viewpoint = validated_data.get('viewpoint')
-            obj.star = validated_data.get('star',"3")
+            # obj.viewpoint = validated_data.get('viewpoint', obj.viewpoint) # $$$$$$$$$$$$$$$$$$$$$$$$$$$
+            obj.viewpoint = validated_data.get('viewpoint')  # $$$$$$$$$$$$$$$$$$$$$$$$$$$
+            obj.star = validated_data.get('star', "3")
             obj.title = validated_data.get('title')
             obj.offer = validated_data.get('offer')
             obj.save()
-
             return obj
-            # comment = Comment.objects.create(**validated_data, write_date=datetime.date.today())
 
-
+        good_bad_points = GoodBadPoint.objects.filter(comment=obj)
+        for i in good_bad_points:
+            i.delete()
+        # if bool(points):
+        #     for i in points:
+        #         if (i.get('point') in ['bad','good']) and i.get('item'):
+        #             pass
+        #         else:
+        #             raise serializers.ValidationError(" point or item dorost vared nashode")
+        #     for i in points:
+        #            GoodBadPoint.objects.create(point=i.get('point'),item=i.get('item'))
+        #     return instance
+        # else:
+        #     return instance
+        ser = GoodBadPointSerializer(data=points, many=True)
+        if ser.is_valid():
+            ser.save(comment=obj)
+            obj.viewpoint = validated_data.get('viewpoint', obj.viewpoint)  # $$$$$$$$$$$$$$$$$$$$$$$$$$$
+            obj.star = validated_data.get('star', obj.star)
+            obj.title = validated_data.get('title', obj.title)
+            obj.offer = validated_data.get('offer', obj.offer)
+            obj.save()
+            return obj
+        else:
+            return ser.errors
 
     class Meta:
         model = Comment
-        fields = ('title', 'viewpoint','star','offer','good_bad_points')
-        extra_kwargs={'viewpoint':{'required':True}}
-
+        fields = ('title', 'viewpoint', 'star', 'offer', 'good_bad_points')
+        extra_kwargs = {'viewpoint': {'required': True}}
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    image_items=serializers.SerializerMethodField()
-    order_registration_date_jalali=serializers.SerializerMethodField()
+    image_items = serializers.SerializerMethodField()
 
-    def get_order_registration_date_jalali(self,obj):
-        return obj.order_registration_date_jalali
+    # order_registration_date_jalali = serializers.SerializerMethodField()
+    # def get_order_registration_date_jalali(self, obj):
+    #     return obj.order_registration_date_jalali
 
-    def get_image_items(self,obj):
-        items=obj.basketitem_set.all()
-        ser=BasketItemSerializer(items,many=True)
+    def get_image_items(self, obj):
+        items = obj.basketitem_set.all()
+        ser = BasketItemSerializer(items, many=True)
         return ser.data
 
     class Meta:
-        model=Basket
+        model = Basket
         # exclude=['user','delivery_date','address','id']
-        fields=['order_number','order_registration_date','order_registration_date_jalali','status','payable_amount','position','image_items']
-
+        fields = ['order_number', 'order_registration_date', 'order_registration_date_jalali', 'status',
+                  'payable_amount', 'position', 'image_items']
 
 
 # class OrderItemSerializer(serializers.ModelSerializer):
@@ -577,10 +522,9 @@ class OrderItemSerializer(serializers.ModelSerializer):
     items_info=serializers.SerializerMethodField()
     delivery_date_time=serializers.SerializerMethodField()
     refund_amount=serializers.SerializerMethodField()
-    order_registration_date_jalali=serializers.SerializerMethodField()
 
     def get_address_info(self,obj):
-        ser=AddAddressSerializer(obj.address)
+        ser=AddAddressSerializer(obj.address) #@@@@@@@@@@@@@@@@@@@@@@@
         return ser.data
 
     def get_items_info(self,obj):
@@ -595,52 +539,21 @@ class OrderItemSerializer(serializers.ModelSerializer):
         else:
             return None
 
-
-    def get_refund_amount(self,obj):#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        # import ipdb; ipdb.set_trace()
-        all_refund_amount=RefundAmount.objects.filter(basket=obj,status='R')
-        sum=0
+    def get_refund_amount(self, obj):  # @@@@@@@@@@@@@@@@@@@@@
+        if obj.status == 'canceled':
+            all_refund_amount = RefundAmount.objects.filter(basket=obj, status='C')
+        else:
+            all_refund_amount = RefundAmount.objects.filter(basket=obj, status='R')
+        sum = 0
         for i in all_refund_amount:
-            sum+=i.amount
+            sum += i.amount
         return sum
 
-    def get_order_registration_date_jalali(self,obj):
-        return obj.order_registration_date_jalali
-
     class Meta:
-        model=Basket
-        fields=['order_registration_date','order_registration_date_jalali','order_number','total_discount_price','payable_amount',
-                'shipping_cost','position','refund_amount','delivery_date_time','address_info',
-                'items_info',]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        model = Basket
+        fields = ['order_registration_date', 'order_registration_date_jalali', 'order_number',
+                  'total_discount_price', 'payable_amount', 'shipping_cost', 'position', 'refund_amount',
+                  'delivery_date_time', 'address_info', 'items_info', ]
 
 
 class ReplyQuestionSerializer(serializers.ModelSerializer):
@@ -674,7 +587,7 @@ class ShowQuestionSerializer(serializers.Serializer):
         return len(self.context['questions'])
 
 
-class DeliveryDateSerializer(serializers.ModelSerializer):#این سریالایزرش سخت بود برام و پر از جدید@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+class DeliveryDateSerializer1(serializers.ModelSerializer):#این سریالایزرش سخت بود برام و پر از جدید@@@@@@@@@@@@@@@@@@
     available=serializers.SerializerMethodField()
     # date=serializers.DateField()
     # def validate_date(self,value):
@@ -695,8 +608,16 @@ class DeliveryDateSerializer(serializers.ModelSerializer):#این سریالای
             raise serializers.ValidationError("mor than capacity") #@@@@@@@@@@@@@@@@@@@@@@@@@@
 
     class Meta:
-        model=DeliveryDate
-        fields=('available','date','range_time','date_jalali')
+        model = DeliveryDate
+        fields = ('available', 'date', 'range_time', 'date_jalali')
+
+
+
+class DeliveryDateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeliveryDate
+        fields = ('date', 'range_time', 'date_jalali')
+
 
 
 class ReturningDateSerializer(serializers.ModelSerializer):
@@ -783,14 +704,13 @@ class ReturnItemSerializer(serializers.ModelSerializer):
     product_id = serializers.SerializerMethodField()
 
     def get_image(self, obj):
-        if obj.basket_item.content_object.photo.first():  # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            return obj.basket_item.content_object.photo.first().image_url  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        if obj.basket_item.content_object.photo.first():  # @@@@@@@@@@@@@@@@@
+            return obj.basket_item.content_object.photo.first().image_url  # $$$$$$$$$$$$$$$$
         else:
             return None
 
     def get_product_model(self, obj):
-        # import ipdb; ipdb.set_trace()
-        return str(obj.basket_item.content_type)
+        return str(obj.basket_item.content_type)  # $$$$$$$$$$$$$$$$$$$$$$$$$$$
 
     def get_product_id(self, obj):
         return obj.basket_item.object_id
