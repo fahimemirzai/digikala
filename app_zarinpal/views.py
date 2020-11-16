@@ -27,11 +27,14 @@ def send_request(request):
     client = Client('https://sandbox.zarinpal.com/pg/services/WebGate/wsdl')
     email=request.GET.get('email','example.com')
     description=request.GET.get('description','توضیحات مربوط به تراکنش را در این قسمت وارد کنید')
-    mobile=int(request.GET.get('mobile',basket.user.username))
+    # mobile=int(request.GET.get('mobile',basket.user.username))
+    mobile=int("09123669277")
     # CallbackURL ='http://localhost:8000/zarinpal/verify/'
     CallbackURL = 'http://127.0.0.1:8000/zarinpal/verify/'
     amount=int(basket.payable_amount)
+
     result = client.service.PaymentRequest(MERCHANT, amount, description, email, mobile, CallbackURL)
+
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     if result.Status == 100:
         # تغیرات بسکت ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -40,7 +43,14 @@ def send_request(request):
         basket.save()
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # return HttpResponseRedirect(redirect_to='https://sandbox.zarinpal.com/pg/StartPay/'+ str(result.Authority))
-        return HttpResponse(redirect('https://sandbox.zarinpal.com/pg/StartPay/' + str(result.Authority)).url)
+        # import ipdb; ipdb.set_trace()
+        # return redirect('https://www.zarinpal.com/pg/StartPay/' + str(result.Authority))
+        # return HttpResponse(redirect('https://sandbox.zarinpal.com/pg/StartPay/' + str(result.Authority)).url)
+        return HttpResponseRedirect(redirect('https://sandbox.zarinpal.com/pg/StartPay/' + str(result.Authority)).url)
+        # mavared zir mohem ast
+        # redirect('https://sandbox.zarinpal.com/pg/StartPay/' + str(result.Authority))====<HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="https://sandbox.zarinpal.com/pg/StartPay/000000000000000000000000000000133652">
+        #HttpResponse(redirect('https://sandbox.zarinpal.com/pg/StartPay/' + str(result.Authority)).url)===<HttpResponse status_code=200, "text/html; charset=utf-8">
+        #redirect('https://sandbox.zarinpal.com/pg/StartPay/' + str(result.Authority)).url===='https://sandbox.zarinpal.com/pg/StartPay/000000000000000000000000000000133698'
     else:
         return HttpResponse('Error code: ' + str(result.Status))
 
@@ -48,8 +58,10 @@ def send_request(request):
 
 @api_view(['GET'])
 def verify(request):
+    import ipdb;
+    ipdb.set_trace()
     basket=Basket.objects.get(user=request.user,status='pardakht')
-    mobile = basket.user.username
+    # mobile = basket.user.username
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     client = Client('https://sandbox.zarinpal.com/pg/services/WebGate/wsdl')
@@ -61,10 +73,13 @@ def verify(request):
     mobile = '09123669277'  # چون پوزرنیم من موبایل نیست بعدا درستش کن و اینو حذف کن #################################
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
     if request.GET.get('Status') == 'OK':
+
         result =  client.service.PaymentVerification(MERCHANT, request.GET['Authority'], amount)
+        #result={'Status': 100,'RefID': 12345678}
+
         if result.Status == 100:
-            # import ipdb; ipdb.set_trace()
             basket.status='pardakht-shod'
             basket.position='1'
             basket.save()
@@ -77,7 +92,6 @@ def verify(request):
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             return HttpResponse('Transaction success.\nRefID: ' + str(result.RefID))
         elif result.Status == 101:
-
             return HttpResponse('Transaction submitted : ' + str(result.Status))
 
 
@@ -101,3 +115,5 @@ def verify(request):
         requests.get(url).json()
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         return HttpResponse('Transaction failed or canceled by user')
+
+
