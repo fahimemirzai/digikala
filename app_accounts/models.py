@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 import datetime
 import jdatetime
 from .validation import validate_order_number, validate_mailing_code, validate_cellphone, \
-    validate_national_code  # @@@@@@@@@@@@@@@
+    validate_national_code  # @@@@
 
 
 # class ActiveUser(models.Model):

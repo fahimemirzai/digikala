@@ -25,7 +25,7 @@ SECRET_KEY = '4@fjk#1z3$b(naz4y-n9)bqq7d+!gd_ac)m!51zhqdk_nk2u&7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG =True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost','testserver']
 
 
 # Application definition
@@ -125,7 +125,7 @@ REST_FRAMEWORK = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'w'),
     }
 }
 
