@@ -18,7 +18,7 @@ django-graphiql==0.4.4
 django-graphql-jwt==0.3.1
 django-nested-admin==3.3.2
 django-rest-swagger==2.2.0
-djangorestframework==3.11.0
+djangorestframework==3.11.2
 graphene==2.1.8
 graphene-django==2.12.1
 graphql-core==2.3.2
